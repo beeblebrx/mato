@@ -14,6 +14,7 @@ namespace {
 constexpr int kGridWidth = game::levels::kLevelWidth;
 constexpr int kGridHeight = game::levels::kLevelHeight;
 constexpr int kCellSize = 24;
+constexpr int kStatusAreaHeight = 64;
 constexpr auto kTickRate = std::chrono::milliseconds(120);
 
 void updateWindowTitle(sf::RenderWindow& window, const game::GameState& state) {
@@ -33,12 +34,11 @@ std::string statusText(const game::GameState& state) {
     if (state.phase() == game::Phase::Running) {
         stream << "  Foods left: " << state.foodsRemainingInLevel();
     } else if (state.phase() == game::Phase::LevelPause) {
-        const double seconds = (state.levelPauseTicksRemaining() * kTickRate.count()) / 1000.0;
-        stream << "\nLevel complete! Next level in " << std::fixed << std::setprecision(1) << seconds << "s";
+        stream << "\nLevel complete!";
     } else if (state.phase() == game::Phase::GameOver) {
-        stream << "\nGame Over";
+        stream << "\nGame Over - Press any key to restart";
     } else if (state.phase() == game::Phase::Won) {
-        stream << "\nYou won the game!";
+        stream << "\nYou won the game! - Press any key to restart";
     }
 
     return stream.str();
@@ -71,7 +71,7 @@ void handleDirectionInput(game::GameState& state, const sf::Keyboard::Key key) {
 
 int main() {
     sf::RenderWindow window(
-        sf::VideoMode(kGridWidth * kCellSize, kGridHeight * kCellSize),
+        sf::VideoMode(kGridWidth * kCellSize, kStatusAreaHeight + kGridHeight * kCellSize),
         "Mato",
         sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(60);
@@ -92,11 +92,20 @@ int main() {
     sf::RectangleShape wallCell(sf::Vector2f(static_cast<float>(kCellSize - 2), static_cast<float>(kCellSize - 2)));
     wallCell.setFillColor(sf::Color(127, 140, 141));
 
+    sf::RectangleShape statusAreaBackground(
+        sf::Vector2f(static_cast<float>(kGridWidth * kCellSize), static_cast<float>(kStatusAreaHeight)));
+    statusAreaBackground.setFillColor(sf::Color(44, 62, 80));
+
+    sf::RectangleShape playfieldBackground(
+        sf::Vector2f(static_cast<float>(kGridWidth * kCellSize), static_cast<float>(kGridHeight * kCellSize)));
+    playfieldBackground.setPosition(0.f, static_cast<float>(kStatusAreaHeight));
+    playfieldBackground.setFillColor(sf::Color(24, 24, 24));
+
     sf::Text overlayText;
     overlayText.setFont(font);
     overlayText.setCharacterSize(20);
     overlayText.setFillColor(sf::Color(236, 240, 241));
-    overlayText.setPosition(10.f, 6.f);
+    overlayText.setPosition(10.f, 8.f);
 
     sf::Clock frameClock;
     std::chrono::milliseconds accumulator{0};
@@ -111,6 +120,12 @@ int main() {
             }
 
             if (event.type == sf::Event::KeyPressed) {
+                if (state.phase() == game::Phase::GameOver || state.phase() == game::Phase::Won) {
+                    state.restart();
+                    accumulator = std::chrono::milliseconds{0};
+                    updateWindowTitle(window, state);
+                    continue;
+                }
                 handleDirectionInput(state, event.key.code);
             }
         }
@@ -124,20 +139,28 @@ int main() {
         }
 
         window.clear(sf::Color(24, 24, 24));
+        window.draw(statusAreaBackground);
+        window.draw(playfieldBackground);
 
         for (const game::Position& wall : state.walls()) {
-            wallCell.setPosition(static_cast<float>(wall.x * kCellSize + 1), static_cast<float>(wall.y * kCellSize + 1));
+            wallCell.setPosition(
+                static_cast<float>(wall.x * kCellSize + 1),
+                static_cast<float>(kStatusAreaHeight + wall.y * kCellSize + 1));
             window.draw(wallCell);
         }
 
         if (state.hasFood()) {
             const game::Position food = state.food();
-            foodCell.setPosition(static_cast<float>(food.x * kCellSize + 1), static_cast<float>(food.y * kCellSize + 1));
+            foodCell.setPosition(
+                static_cast<float>(food.x * kCellSize + 1),
+                static_cast<float>(kStatusAreaHeight + food.y * kCellSize + 1));
             window.draw(foodCell);
         }
 
         for (const game::Position& segment : state.snake()) {
-            snakeCell.setPosition(static_cast<float>(segment.x * kCellSize + 1), static_cast<float>(segment.y * kCellSize + 1));
+            snakeCell.setPosition(
+                static_cast<float>(segment.x * kCellSize + 1),
+                static_cast<float>(kStatusAreaHeight + segment.y * kCellSize + 1));
             window.draw(snakeCell);
         }
 
