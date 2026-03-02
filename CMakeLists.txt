@@ -9,6 +9,8 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 add_executable(snake
     src/main.cpp
+    src/render/RenderAssetsFactory.cpp
+    src/input/KeyboardControl.cpp
     src/game/GameState.cpp
     src/game/FoodSpawner.cpp
     src/game/LevelData.cpp
