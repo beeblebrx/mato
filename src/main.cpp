@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <iomanip>
-#include <sstream>
 #include <string>
 
 #include "game/GameState.hpp"
@@ -29,20 +28,19 @@ void updateWindowTitle(sf::RenderWindow& window, const game::GameState& state) {
 }
 
 std::string statusText(const game::GameState& state) {
-    std::ostringstream stream;
-    stream << "Level " << state.currentLevelNumber() << "  Score: " << state.score();
+    std::string status = "Level " + std::to_string(state.currentLevelNumber()) + "  Score: " + std::to_string(state.score());
 
     if (state.phase() == game::Phase::Running) {
-        stream << "  Foods left: " << state.foodsRemainingInLevel();
+        status += "  Foods left: " + std::to_string(state.foodsRemainingInLevel());
     } else if (state.phase() == game::Phase::LevelPause) {
-        stream << "\nLevel complete!";
+        status += "\nLevel complete!";
     } else if (state.phase() == game::Phase::GameOver) {
-        stream << "\nGame Over - Press any key to restart";
+        status += "\nGame Over - Press any key to restart";
     } else if (state.phase() == game::Phase::Won) {
-        stream << "\nYou won the game! - Press any key to restart";
+        status += "\nYou won the game! - Press any key to restart";
     }
 
-    return stream.str();
+    return status;
 }
 
 }  // namespace
