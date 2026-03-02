@@ -4,12 +4,14 @@
 
 #include "input/Control.hpp"
 
-namespace input {
+namespace input
+{
 
-class KeyboardControl : public Control {
-public:
-    explicit KeyboardControl(game::GameState& state);
-    void handle(const sf::Keyboard::Key key) override;
-};
+    class KeyboardControl : public Control
+    {
+    public:
+        explicit KeyboardControl(game::GameState &state);
+        void handle(const sf::Keyboard::Key key) override;
+    };
 
-}  // namespace input
+}

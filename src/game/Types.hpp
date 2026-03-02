@@ -1,21 +1,25 @@
 #pragma once
 
-namespace game {
+namespace game
+{
 
-enum class Direction {
-    Up,
-    Down,
-    Left,
-    Right
-};
+    enum class Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    };
 
-struct Position {
-    int x{};
-    int y{};
+    struct Position
+    {
+        int x{};
+        int y{};
 
-    bool operator==(const Position& other) const {
-        return x == other.x && y == other.y;
-    }
-};
+        bool operator==(const Position &other) const
+        {
+            return x == other.x && y == other.y;
+        }
+    };
 
-}  // namespace game
+}

@@ -1,12 +1,15 @@
 #include "input/KeyboardControl.hpp"
 
-namespace input {
+namespace input
+{
 
-KeyboardControl::KeyboardControl(game::GameState& state)
-    : Control(state) {}
+    KeyboardControl::KeyboardControl(game::GameState &state)
+        : Control(state) {}
 
-void KeyboardControl::handle(const sf::Keyboard::Key key) {
-    switch (key) {
+    void KeyboardControl::handle(const sf::Keyboard::Key key)
+    {
+        switch (key)
+        {
         case sf::Keyboard::Up:
         case sf::Keyboard::W:
             state_.setDirection(game::Direction::Up);
@@ -25,7 +28,7 @@ void KeyboardControl::handle(const sf::Keyboard::Key key) {
             break;
         default:
             break;
+        }
     }
-}
 
-}  // namespace input
+} // namespace input

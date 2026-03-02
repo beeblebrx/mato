@@ -6,162 +6,202 @@
 
 #include "game/FoodSpawner.hpp"
 
-namespace game {
+namespace game
+{
 
-namespace {
+    namespace
+    {
 
-constexpr int kInitialLength = 3;
-constexpr int kLevelPauseTicks = 25;
+        constexpr int kInitialLength = 3;
+        constexpr int kLevelPauseTicks = 25;
 
-}  // namespace
-
-GameState::GameState(int width, int height)
-    : boardWidth_(width),
-      boardHeight_(height),
-      randomEngine_(std::random_device{}()) {
-    if (boardWidth_ != levels::kLevelWidth || boardHeight_ != levels::kLevelHeight) {
-        throw std::invalid_argument("Game dimensions must match level dimensions");
-    }
-    if (levels().empty()) {
-        throw std::runtime_error("No level definitions configured");
     }
 
-    restart();
-}
-
-void GameState::setDirection(Direction direction) {
-    pendingDirection_ = direction;
-}
-
-void GameState::update() {
-    if (phase_ == Phase::GameOver || phase_ == Phase::Won) {
-        return;
-    }
-
-    if (phase_ == Phase::LevelPause) {
-        if (levelPauseTicksRemaining_ > 0) {
-            --levelPauseTicksRemaining_;
+    GameState::GameState(int width, int height)
+        : boardWidth_(width),
+          boardHeight_(height),
+          randomEngine_(std::random_device{}())
+    {
+        if (boardWidth_ != levels::kLevelWidth || boardHeight_ != levels::kLevelHeight)
+        {
+            throw std::invalid_argument("Game dimensions must match level dimensions");
         }
-        if (levelPauseTicksRemaining_ == 0) {
-            if (currentLevelIndex_ + 1 >= levels().size()) {
-                phase_ = Phase::Won;
+        if (levels().empty())
+        {
+            throw std::runtime_error("No level definitions configured");
+        }
+
+        restart();
+    }
+
+    void GameState::setDirection(Direction direction)
+    {
+        pendingDirection_ = direction;
+    }
+
+    void GameState::update()
+    {
+        if (phase_ == Phase::GameOver || phase_ == Phase::Won)
+        {
+            return;
+        }
+
+        if (phase_ == Phase::LevelPause)
+        {
+            if (levelPauseTicksRemaining_ > 0)
+            {
+                --levelPauseTicksRemaining_;
+            }
+            if (levelPauseTicksRemaining_ == 0)
+            {
+                if (currentLevelIndex_ + 1 >= levels().size())
+                {
+                    phase_ = Phase::Won;
+                    hasFood_ = false;
+                }
+                else
+                {
+                    ++currentLevelIndex_;
+                    loadLevel(currentLevelIndex_);
+                    phase_ = Phase::Running;
+                }
+            }
+            return;
+        }
+
+        if (levelAdvancePending_)
+        {
+            levelAdvancePending_ = false;
+            phase_ = Phase::LevelPause;
+            levelPauseTicksRemaining_ = kLevelPauseTicks;
+            return;
+        }
+
+        if (pendingDirection_.has_value() && !isOpposite(*pendingDirection_))
+        {
+            direction_ = *pendingDirection_;
+        }
+        pendingDirection_.reset();
+
+        const Position nextHead = nextHeadPosition(direction_);
+
+        if (hitsWall(nextHead) || hitsSelf(nextHead))
+        {
+            phase_ = Phase::GameOver;
+            hasFood_ = false;
+            return;
+        }
+
+        snake_.insert(snake_.begin(), nextHead);
+
+        if (hasFood_ && nextHead == food_)
+        {
+            ++score_;
+            ++foodsEatenInLevel_;
+            pendingGrowth_ += currentLevel().growthPerFood;
+
+            if (foodsEatenInLevel_ >= currentLevel().foodsToComplete)
+            {
+                levelAdvancePending_ = true;
                 hasFood_ = false;
-            } else {
-                ++currentLevelIndex_;
-                loadLevel(currentLevelIndex_);
-                phase_ = Phase::Running;
+            }
+            else
+            {
+                food_ = FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_);
+                hasFood_ = true;
             }
         }
-        return;
-    }
 
-    if (levelAdvancePending_) {
-        levelAdvancePending_ = false;
-        phase_ = Phase::LevelPause;
-        levelPauseTicksRemaining_ = kLevelPauseTicks;
-        return;
-    }
-
-    if (pendingDirection_.has_value() && !isOpposite(*pendingDirection_)) {
-        direction_ = *pendingDirection_;
-    }
-    pendingDirection_.reset();
-
-    const Position nextHead = nextHeadPosition(direction_);
-
-    if (hitsWall(nextHead) || hitsSelf(nextHead)) {
-        phase_ = Phase::GameOver;
-        hasFood_ = false;
-        return;
-    }
-
-    snake_.insert(snake_.begin(), nextHead);
-
-    if (hasFood_ && nextHead == food_) {
-        ++score_;
-        ++foodsEatenInLevel_;
-        pendingGrowth_ += currentLevel().growthPerFood;
-
-        if (foodsEatenInLevel_ >= currentLevel().foodsToComplete) {
-            levelAdvancePending_ = true;
-            hasFood_ = false;
-        } else {
-            food_ = FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_);
-            hasFood_ = true;
+        if (pendingGrowth_ > 0)
+        {
+            --pendingGrowth_;
+        }
+        else
+        {
+            snake_.pop_back();
         }
     }
 
-    if (pendingGrowth_ > 0) {
-        --pendingGrowth_;
-    } else {
-        snake_.pop_back();
+    void GameState::restart()
+    {
+        score_ = 0;
+        currentLevelIndex_ = 0;
+        levelPauseTicksRemaining_ = 0;
+        levelAdvancePending_ = false;
+        phase_ = Phase::Running;
+        loadLevel(currentLevelIndex_);
     }
-}
 
-void GameState::restart() {
-    score_ = 0;
-    currentLevelIndex_ = 0;
-    levelPauseTicksRemaining_ = 0;
-    levelAdvancePending_ = false;
-    phase_ = Phase::Running;
-    loadLevel(currentLevelIndex_);
-}
+    bool GameState::isGameOver() const
+    {
+        return phase_ == Phase::GameOver;
+    }
 
-bool GameState::isGameOver() const {
-    return phase_ == Phase::GameOver;
-}
+    bool GameState::isWon() const
+    {
+        return phase_ == Phase::Won;
+    }
 
-bool GameState::isWon() const {
-    return phase_ == Phase::Won;
-}
+    int GameState::width() const
+    {
+        return boardWidth_;
+    }
 
-int GameState::width() const {
-    return boardWidth_;
-}
+    int GameState::height() const
+    {
+        return boardHeight_;
+    }
 
-int GameState::height() const {
-    return boardHeight_;
-}
+    int GameState::score() const
+    {
+        return score_;
+    }
 
-int GameState::score() const {
-    return score_;
-}
+    int GameState::currentLevelNumber() const
+    {
+        return static_cast<int>(currentLevelIndex_ + 1);
+    }
 
-int GameState::currentLevelNumber() const {
-    return static_cast<int>(currentLevelIndex_ + 1);
-}
+    int GameState::foodsRemainingInLevel() const
+    {
+        const int remaining = currentLevel().foodsToComplete - foodsEatenInLevel_;
+        return remaining > 0 ? remaining : 0;
+    }
 
-int GameState::foodsRemainingInLevel() const {
-    const int remaining = currentLevel().foodsToComplete - foodsEatenInLevel_;
-    return remaining > 0 ? remaining : 0;
-}
+    Phase GameState::phase() const
+    {
+        return phase_;
+    }
 
-Phase GameState::phase() const {
-    return phase_;
-}
+    int GameState::levelPauseTicksRemaining() const
+    {
+        return levelPauseTicksRemaining_;
+    }
 
-int GameState::levelPauseTicksRemaining() const {
-    return levelPauseTicksRemaining_;
-}
+    bool GameState::hasFood() const
+    {
+        return hasFood_;
+    }
 
-bool GameState::hasFood() const {
-    return hasFood_;
-}
+    const std::vector<Position> &GameState::snake() const
+    {
+        return snake_;
+    }
 
-const std::vector<Position>& GameState::snake() const {
-    return snake_;
-}
+    const std::vector<Position> &GameState::walls() const
+    {
+        return wallCells_;
+    }
 
-const std::vector<Position>& GameState::walls() const {
-    return wallCells_;
-}
+    Position GameState::food() const
+    {
+        return food_;
+    }
 
-Position GameState::food() const {
-    return food_;
-}
-
-Direction GameState::oppositeDirection(Direction direction) const {
-    switch (direction) {
+    Direction GameState::oppositeDirection(Direction direction) const
+    {
+        switch (direction)
+        {
         case Direction::Up:
             return Direction::Down;
         case Direction::Down:
@@ -170,58 +210,69 @@ Direction GameState::oppositeDirection(Direction direction) const {
             return Direction::Right;
         case Direction::Right:
             return Direction::Left;
-    }
-    return Direction::Right;
-}
-
-const std::vector<levels::LevelDefinition>& GameState::levels() const {
-    return levels::all();
-}
-
-const levels::LevelDefinition& GameState::currentLevel() const {
-    return levels()[currentLevelIndex_];
-}
-
-void GameState::loadLevel(std::size_t levelIndex) {
-    const levels::LevelDefinition& level = levels()[levelIndex];
-
-    wallMask_.assign(static_cast<std::size_t>(boardWidth_ * boardHeight_), false);
-    wallCells_.clear();
-
-    for (int y = 0; y < boardHeight_; ++y) {
-        const char* row = level.layoutRows[static_cast<std::size_t>(y)];
-        const std::string rowString{row};
-        if (static_cast<int>(rowString.size()) != boardWidth_) {
-            throw std::runtime_error("Level row width does not match board width");
         }
-        for (int x = 0; x < boardWidth_; ++x) {
-            const char cell = rowString[static_cast<std::size_t>(x)];
-            if (cell != '.' && cell != '#') {
-                throw std::runtime_error("Unsupported level cell character");
+        return Direction::Right;
+    }
+
+    const std::vector<levels::LevelDefinition> &GameState::levels() const
+    {
+        return levels::all();
+    }
+
+    const levels::LevelDefinition &GameState::currentLevel() const
+    {
+        return levels()[currentLevelIndex_];
+    }
+
+    void GameState::loadLevel(std::size_t levelIndex)
+    {
+        const levels::LevelDefinition &level = levels()[levelIndex];
+
+        wallMask_.assign(static_cast<std::size_t>(boardWidth_ * boardHeight_), false);
+        wallCells_.clear();
+
+        for (int y = 0; y < boardHeight_; ++y)
+        {
+            const char *row = level.layoutRows[static_cast<std::size_t>(y)];
+            const std::string rowString{row};
+            if (static_cast<int>(rowString.size()) != boardWidth_)
+            {
+                throw std::runtime_error("Level row width does not match board width");
             }
-            if (cell == '#') {
-                const std::size_t index = static_cast<std::size_t>(y * boardWidth_ + x);
-                wallMask_[index] = true;
-                wallCells_.push_back({x, y});
+            for (int x = 0; x < boardWidth_; ++x)
+            {
+                const char cell = rowString[static_cast<std::size_t>(x)];
+                if (cell != '.' && cell != '#')
+                {
+                    throw std::runtime_error("Unsupported level cell character");
+                }
+                if (cell == '#')
+                {
+                    const std::size_t index = static_cast<std::size_t>(y * boardWidth_ + x);
+                    wallMask_[index] = true;
+                    wallCells_.push_back({x, y});
+                }
             }
         }
-    }
 
-    if (!isInsideBoard(level.start) || isWallCell(level.start)) {
-        throw std::runtime_error("Invalid level start position");
-    }
+        if (!isInsideBoard(level.start) || isWallCell(level.start))
+        {
+            throw std::runtime_error("Invalid level start position");
+        }
 
-    direction_ = level.startDirection;
-    pendingDirection_.reset();
+        direction_ = level.startDirection;
+        pendingDirection_.reset();
 
-    snake_.clear();
-    snake_.reserve(kInitialLength);
-    snake_.push_back(level.start);
+        snake_.clear();
+        snake_.reserve(kInitialLength);
+        snake_.push_back(level.start);
 
-    Position segment = level.start;
-    const Direction tailDirection = oppositeDirection(direction_);
-    for (int i = 1; i < kInitialLength; ++i) {
-        switch (tailDirection) {
+        Position segment = level.start;
+        const Direction tailDirection = oppositeDirection(direction_);
+        for (int i = 1; i < kInitialLength; ++i)
+        {
+            switch (tailDirection)
+            {
             case Direction::Up:
                 --segment.y;
                 break;
@@ -234,47 +285,54 @@ void GameState::loadLevel(std::size_t levelIndex) {
             case Direction::Right:
                 ++segment.x;
                 break;
+            }
+
+            if (!isInsideBoard(segment) || isWallCell(segment))
+            {
+                throw std::runtime_error("Invalid snake spawn for level");
+            }
+
+            snake_.push_back(segment);
         }
 
-        if (!isInsideBoard(segment) || isWallCell(segment)) {
-            throw std::runtime_error("Invalid snake spawn for level");
+        foodsEatenInLevel_ = 0;
+        pendingGrowth_ = 0;
+        levelAdvancePending_ = false;
+        levelPauseTicksRemaining_ = 0;
+
+        food_ = FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_);
+        hasFood_ = true;
+    }
+
+    bool GameState::isInsideBoard(const Position &position) const
+    {
+        return position.x >= 0 && position.y >= 0 && position.x < boardWidth_ && position.y < boardHeight_;
+    }
+
+    bool GameState::isWallCell(const Position &position) const
+    {
+        if (!isInsideBoard(position))
+        {
+            return false;
         }
-
-        snake_.push_back(segment);
+        const std::size_t index = static_cast<std::size_t>(position.y * boardWidth_ + position.x);
+        return wallMask_[index];
     }
 
-    foodsEatenInLevel_ = 0;
-    pendingGrowth_ = 0;
-    levelAdvancePending_ = false;
-    levelPauseTicksRemaining_ = 0;
-
-    food_ = FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_);
-    hasFood_ = true;
-}
-
-bool GameState::isInsideBoard(const Position& position) const {
-    return position.x >= 0 && position.y >= 0 && position.x < boardWidth_ && position.y < boardHeight_;
-}
-
-bool GameState::isWallCell(const Position& position) const {
-    if (!isInsideBoard(position)) {
-        return false;
+    bool GameState::isOpposite(Direction next) const
+    {
+        return (direction_ == Direction::Up && next == Direction::Down) ||
+               (direction_ == Direction::Down && next == Direction::Up) ||
+               (direction_ == Direction::Left && next == Direction::Right) ||
+               (direction_ == Direction::Right && next == Direction::Left);
     }
-    const std::size_t index = static_cast<std::size_t>(position.y * boardWidth_ + position.x);
-    return wallMask_[index];
-}
 
-bool GameState::isOpposite(Direction next) const {
-    return (direction_ == Direction::Up && next == Direction::Down) ||
-           (direction_ == Direction::Down && next == Direction::Up) ||
-           (direction_ == Direction::Left && next == Direction::Right) ||
-           (direction_ == Direction::Right && next == Direction::Left);
-}
+    Position GameState::nextHeadPosition(Direction direction) const
+    {
+        Position next = snake_.front();
 
-Position GameState::nextHeadPosition(Direction direction) const {
-    Position next = snake_.front();
-
-    switch (direction) {
+        switch (direction)
+        {
         case Direction::Up:
             --next.y;
             break;
@@ -287,22 +345,26 @@ Position GameState::nextHeadPosition(Direction direction) const {
         case Direction::Right:
             ++next.x;
             break;
-    }
-
-    return next;
-}
-
-bool GameState::hitsWall(const Position& position) const {
-    return !isInsideBoard(position) || isWallCell(position);
-}
-
-bool GameState::hitsSelf(const Position& position) const {
-    for (const Position& segment : snake_) {
-        if (segment == position) {
-            return true;
         }
-    }
-    return false;
-}
 
-}  // namespace game
+        return next;
+    }
+
+    bool GameState::hitsWall(const Position &position) const
+    {
+        return !isInsideBoard(position) || isWallCell(position);
+    }
+
+    bool GameState::hitsSelf(const Position &position) const
+    {
+        for (const Position &segment : snake_)
+        {
+            if (segment == position)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+} // namespace game

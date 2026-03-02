@@ -14,6 +14,8 @@ add_executable(snake
     src/game/GameState.cpp
     src/game/FoodSpawner.cpp
     src/game/LevelData.cpp
+    src/render/GameText.cpp
+    src/render/WindowTitle.cpp
 )
 
 target_include_directories(snake PRIVATE src)

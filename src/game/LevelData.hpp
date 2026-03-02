@@ -5,19 +5,21 @@
 
 #include "game/Types.hpp"
 
-namespace game::levels {
+namespace game::levels
+{
 
-inline constexpr int kLevelWidth = 30;
-inline constexpr int kLevelHeight = 20;
+    inline constexpr int kLevelWidth = 30;
+    inline constexpr int kLevelHeight = 20;
 
-struct LevelDefinition {
-    std::array<const char*, kLevelHeight> layoutRows;
-    int foodsToComplete{};
-    int growthPerFood{};
-    Position start{};
-    Direction startDirection{Direction::Right};
-};
+    struct LevelDefinition
+    {
+        std::array<const char *, kLevelHeight> layoutRows;
+        int foodsToComplete{};
+        int growthPerFood{};
+        Position start{};
+        Direction startDirection{Direction::Right};
+    };
 
-[[nodiscard]] const std::vector<LevelDefinition>& all();
+    [[nodiscard]] const std::vector<LevelDefinition> &all();
 
-}  // namespace game::levels
+}
