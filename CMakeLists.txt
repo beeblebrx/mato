@@ -16,6 +16,7 @@ add_executable(snake
     src/game/LevelData.cpp
     src/render/GameText.cpp
     src/render/WindowTitle.cpp
+    src/render/CellRenderer.cpp
 )
 
 target_include_directories(snake PRIVATE src)

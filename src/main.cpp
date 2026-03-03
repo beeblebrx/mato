@@ -3,10 +3,12 @@
 #include <chrono>
 #include <iomanip>
 #include <string>
+#include <vector>
 
 #include "game/GameState.hpp"
 #include "game/LevelData.hpp"
 #include "input/KeyboardControl.hpp"
+#include "render/CellRenderer.hpp"
 #include "render/RenderAssetsFactory.hpp"
 #include "render/GameText.hpp"
 #include "render/WindowTitle.hpp"
@@ -32,6 +34,7 @@ int main()
 
     game::GameState state(kGridWidth, kGridHeight);
     render::RenderAssetsFactory assets(kGridWidth, kGridHeight, kCellSize, kStatusAreaHeight);
+    render::CellRenderer cellRenderer(window, kCellSize, kStatusAreaHeight);
     input::KeyboardControl keyboardControl(state);
 
     sf::Clock frameClock;
@@ -76,33 +79,18 @@ int main()
         window.draw(assets.statusAreaBackground());
         window.draw(assets.playfieldBackground());
 
-        for (const game::Position &wall : state.walls())
-        {
-            sf::RectangleShape wallCell = assets.createWallCell();
-            wallCell.setPosition(
-                static_cast<float>(wall.x * kCellSize + 1),
-                static_cast<float>(kStatusAreaHeight + wall.y * kCellSize + 1));
-            window.draw(wallCell);
-        }
+        // Render walls
+        cellRenderer.renderCells(assets.createWallCell(), state.walls());
 
+        // Render food
         if (state.hasFood())
         {
-            const game::Position food = state.food();
-            sf::RectangleShape foodCell = assets.createFoodCell();
-            foodCell.setPosition(
-                static_cast<float>(food.x * kCellSize + 1),
-                static_cast<float>(kStatusAreaHeight + food.y * kCellSize + 1));
-            window.draw(foodCell);
+            const std::vector<game::Position> foodCells{state.food()};
+            cellRenderer.renderCells(assets.createFoodCell(), foodCells);
         }
 
-        for (const game::Position &segment : state.snake())
-        {
-            sf::RectangleShape snakeCell = assets.createSnakeCell();
-            snakeCell.setPosition(
-                static_cast<float>(segment.x * kCellSize + 1),
-                static_cast<float>(kStatusAreaHeight + segment.y * kCellSize + 1));
-            window.draw(snakeCell);
-        }
+        // Render snake
+        cellRenderer.renderCells(assets.createSnakeCell(), state.snake());
 
         sf::Text overlayText = assets.createOverlayText();
         overlayText.setString(render::GameText::statusText(state));
