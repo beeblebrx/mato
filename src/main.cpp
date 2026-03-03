@@ -83,11 +83,7 @@ int main()
         cellRenderer.renderCells(assets.createWallCell(), state.walls());
 
         // Render food
-        if (state.hasFood())
-        {
-            const std::vector<game::Position> foodCells{state.food()};
-            cellRenderer.renderCells(assets.createFoodCell(), foodCells);
-        }
+        cellRenderer.renderCells(assets.createFoodCell(), state.foods());
 
         // Render snake
         cellRenderer.renderCells(assets.createSnakeCell(), state.snake());

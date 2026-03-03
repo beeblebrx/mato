@@ -57,7 +57,7 @@ namespace game
                 if (currentLevelIndex_ + 1 >= levels().size())
                 {
                     phase_ = Phase::Won;
-                    hasFood_ = false;
+                    food_.clear();
                 }
                 else
                 {
@@ -88,14 +88,16 @@ namespace game
         if (hitsWall(nextHead) || hitsSelf(nextHead))
         {
             phase_ = Phase::GameOver;
-            hasFood_ = false;
+            food_.clear();
             return;
         }
 
         snake_.insert(snake_.begin(), nextHead);
 
-        if (hasFood_ && nextHead == food_)
+        const auto eatenFood = std::find(food_.begin(), food_.end(), nextHead);
+        if (eatenFood != food_.end())
         {
+            food_.erase(eatenFood);
             ++score_;
             ++foodsEatenInLevel_;
             pendingGrowth_ += currentLevel().growthPerFood;
@@ -103,12 +105,11 @@ namespace game
             if (foodsEatenInLevel_ >= currentLevel().foodsToComplete)
             {
                 levelAdvancePending_ = true;
-                hasFood_ = false;
+                food_.clear();
             }
             else
             {
-                food_ = FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_);
-                hasFood_ = true;
+                food_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
             }
         }
 
@@ -178,11 +179,6 @@ namespace game
         return levelPauseTicksRemaining_;
     }
 
-    bool GameState::hasFood() const
-    {
-        return hasFood_;
-    }
-
     const std::vector<Position> &GameState::snake() const
     {
         return snake_;
@@ -193,7 +189,7 @@ namespace game
         return wallCells_;
     }
 
-    Position GameState::food() const
+    const std::vector<Position> &GameState::foods() const
     {
         return food_;
     }
@@ -300,8 +296,8 @@ namespace game
         levelAdvancePending_ = false;
         levelPauseTicksRemaining_ = 0;
 
-        food_ = FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_);
-        hasFood_ = true;
+        food_.clear();
+        food_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
     }
 
     bool GameState::isInsideBoard(const Position &position) const

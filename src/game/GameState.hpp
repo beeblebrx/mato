@@ -38,10 +38,9 @@ namespace game
         [[nodiscard]] int foodsRemainingInLevel() const;
         [[nodiscard]] Phase phase() const;
         [[nodiscard]] int levelPauseTicksRemaining() const;
-        [[nodiscard]] bool hasFood() const;
         [[nodiscard]] const std::vector<Position> &snake() const;
         [[nodiscard]] const std::vector<Position> &walls() const;
-        [[nodiscard]] Position food() const;
+        [[nodiscard]] const std::vector<Position> &foods() const;
 
     private:
         [[nodiscard]] Direction oppositeDirection(Direction direction) const;
@@ -62,8 +61,7 @@ namespace game
         Direction direction_{Direction::Right};
         std::optional<Direction> pendingDirection_;
 
-        Position food_{};
-        bool hasFood_{};
+        std::vector<Position> food_;
 
         int score_{};
         int pendingGrowth_{};
