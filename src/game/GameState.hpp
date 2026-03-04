@@ -31,13 +31,13 @@ namespace game
 
         [[nodiscard]] bool isGameOver() const;
         [[nodiscard]] bool isWon() const;
-        [[nodiscard]] int width() const;
-        [[nodiscard]] int height() const;
-        [[nodiscard]] int score() const;
-        [[nodiscard]] int currentLevelNumber() const;
+        [[nodiscard]] unsigned int width() const;
+        [[nodiscard]] unsigned int height() const;
+        [[nodiscard]] unsigned int score() const;
+        [[nodiscard]] unsigned int currentLevelNumber() const;
         [[nodiscard]] int foodsRemainingInLevel() const;
         [[nodiscard]] Phase phase() const;
-        [[nodiscard]] int levelPauseTicksRemaining() const;
+        [[nodiscard]] unsigned int levelPauseTicksRemaining() const;
         [[nodiscard]] const std::vector<ColorCell> &snake() const;
         [[nodiscard]] const std::vector<ColorCell> &walls() const;
         [[nodiscard]] const std::vector<ColorCell> &foods() const;
@@ -53,22 +53,22 @@ namespace game
         [[nodiscard]] Position nextHeadPosition(Direction direction) const;
         [[nodiscard]] bool hitsWall(const Position &position) const;
         [[nodiscard]] bool hitsSelf(const Position &position) const;
-        void updateSnakeColors();
 
-        int boardWidth_{};
-        int boardHeight_{};
+        unsigned int boardWidth_{};
+        unsigned int boardHeight_{};
 
         std::vector<ColorCell> snake_;
         Direction direction_{Direction::Right};
         std::optional<Direction> pendingDirection_;
 
-        std::vector<ColorCell> food_;
+        std::vector<ColorCell> foods_;
 
-        int score_{};
-        int pendingGrowth_{};
-        int foodsEatenInLevel_{};
+        unsigned int score_{};
+        unsigned short pendingGrowth_{};
+        unsigned int foodsEatenInLevel_{};
         std::size_t currentLevelIndex_{};
-        int levelPauseTicksRemaining_{};
+        unsigned int tick_{};
+        unsigned int levelPauseTicksRemaining_{};
         bool levelAdvancePending_{};
         Phase phase_{Phase::Running};
 

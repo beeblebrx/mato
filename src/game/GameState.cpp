@@ -17,7 +17,9 @@ namespace game
         const sf::Color kSnakeBodyCycle[] = {
             kSnakeBodyShade1,
             kSnakeBodyShade2,
-            kSnakeBodyShade3};
+            kSnakeBodyShade3,
+            kSnakeBodyShade2,
+            kSnakeBodyShade1};
 
         bool hasPosition(const ColorCell &cell, const Position &position)
         {
@@ -29,7 +31,8 @@ namespace game
     GameState::GameState(int width, int height)
         : boardWidth_(width),
           boardHeight_(height),
-          randomEngine_(std::random_device{}())
+          randomEngine_(std::random_device{}()),
+          tick_(0)
     {
         if (boardWidth_ != levels::kLevelWidth || boardHeight_ != levels::kLevelHeight)
         {
@@ -66,7 +69,7 @@ namespace game
                 if (currentLevelIndex_ + 1 >= levels().size())
                 {
                     phase_ = Phase::Won;
-                    food_.clear();
+                    foods_.clear();
                 }
                 else
                 {
@@ -97,20 +100,20 @@ namespace game
         if (hitsWall(nextHead) || hitsSelf(nextHead))
         {
             phase_ = Phase::GameOver;
-            food_.clear();
+            foods_.clear();
             return;
         }
 
-        snake_.insert(snake_.begin(), ColorCell{nextHead, kSnakeHeadColor});
+        snake_.insert(snake_.begin(), ColorCell{nextHead, kSnakeBodyCycle[tick_ % std::size(kSnakeBodyCycle)]});
 
-        const auto eatenFood = std::find_if(food_.begin(), food_.end(),
+        const auto eatenFood = std::find_if(foods_.begin(), foods_.end(),
                                             [&nextHead](const ColorCell &cell)
                                             {
                                                 return hasPosition(cell, nextHead);
                                             });
-        if (eatenFood != food_.end())
+        if (eatenFood != foods_.end())
         {
-            food_.erase(eatenFood);
+            foods_.erase(eatenFood);
             ++score_;
             ++foodsEatenInLevel_;
             pendingGrowth_ += currentLevel().growthPerFood;
@@ -118,11 +121,11 @@ namespace game
             if (foodsEatenInLevel_ >= currentLevel().foodsToComplete)
             {
                 levelAdvancePending_ = true;
-                food_.clear();
+                foods_.clear();
             }
             else
             {
-                food_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
+                foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
             }
         }
 
@@ -135,7 +138,7 @@ namespace game
             snake_.pop_back();
         }
 
-        updateSnakeColors();
+        ++tick_;
     }
 
     void GameState::restart()
@@ -158,24 +161,24 @@ namespace game
         return phase_ == Phase::Won;
     }
 
-    int GameState::width() const
+    unsigned int GameState::width() const
     {
         return boardWidth_;
     }
 
-    int GameState::height() const
+    unsigned int GameState::height() const
     {
         return boardHeight_;
     }
 
-    int GameState::score() const
+    unsigned int GameState::score() const
     {
         return score_;
     }
 
-    int GameState::currentLevelNumber() const
+    unsigned int GameState::currentLevelNumber() const
     {
-        return static_cast<int>(currentLevelIndex_ + 1);
+        return static_cast<unsigned int>(currentLevelIndex_ + 1);
     }
 
     int GameState::foodsRemainingInLevel() const
@@ -189,7 +192,7 @@ namespace game
         return phase_;
     }
 
-    int GameState::levelPauseTicksRemaining() const
+    unsigned int GameState::levelPauseTicksRemaining() const
     {
         return levelPauseTicksRemaining_;
     }
@@ -206,7 +209,7 @@ namespace game
 
     const std::vector<ColorCell> &GameState::foods() const
     {
-        return food_;
+        return foods_;
     }
 
     Direction GameState::oppositeDirection(Direction direction) const
@@ -276,7 +279,7 @@ namespace game
 
         snake_.clear();
         snake_.reserve(kInitialLength);
-        snake_.push_back({level.start, kSnakeHeadColor});
+        snake_.push_back({level.start, kSnakeBodyCycle[0]});
 
         Position segment = level.start;
         const Direction tailDirection = oppositeDirection(direction_);
@@ -306,15 +309,13 @@ namespace game
             snake_.push_back({segment, kSnakeBodyShade1});
         }
 
-        updateSnakeColors();
-
         foodsEatenInLevel_ = 0;
         pendingGrowth_ = 0;
         levelAdvancePending_ = false;
         levelPauseTicksRemaining_ = 0;
 
-        food_.clear();
-        food_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
+        foods_.clear();
+        foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
     }
 
     bool GameState::isInsideBoard(const Position &position) const
@@ -378,21 +379,6 @@ namespace game
             }
         }
         return false;
-    }
-
-    void GameState::updateSnakeColors()
-    {
-        if (snake_.empty())
-        {
-            return;
-        }
-
-        snake_.front().color = kSnakeHeadColor;
-
-        for (std::size_t i = 1; i < snake_.size(); ++i)
-        {
-            snake_[i].color = kSnakeBodyCycle[(i - 1) % std::size(kSnakeBodyCycle)];
-        }
     }
 
 } // namespace game

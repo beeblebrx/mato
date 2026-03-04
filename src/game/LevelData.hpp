@@ -14,8 +14,8 @@ namespace game::levels
     struct LevelDefinition
     {
         std::array<const char *, kLevelHeight> layoutRows;
-        int foodsToComplete{};
-        int growthPerFood{};
+        unsigned int foodsToComplete{};
+        unsigned int growthPerFood{};
         Position start{};
         Direction startDirection{Direction::Right};
     };

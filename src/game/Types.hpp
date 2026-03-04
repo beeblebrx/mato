@@ -31,9 +31,10 @@ namespace game
     };
 
     inline const sf::Color kSnakeHeadColor{205, 127, 50};
-    inline const sf::Color kSnakeBodyShade1{56, 188, 109};
-    inline const sf::Color kSnakeBodyShade2{46, 204, 113};
-    inline const sf::Color kSnakeBodyShade3{39, 174, 96};
+    // Shades of green for the snake body, will be cycled through to create a gradient effect
+    inline const sf::Color kSnakeBodyShade1{46, 204, 113};
+    inline const sf::Color kSnakeBodyShade2{39, 174, 96};
+    inline const sf::Color kSnakeBodyShade3{33, 150, 83};
     inline const sf::Color kFoodColor{231, 76, 60};
     inline const sf::Color kWallColor{127, 140, 141};
 
