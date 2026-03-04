@@ -38,9 +38,9 @@ namespace game
         [[nodiscard]] int foodsRemainingInLevel() const;
         [[nodiscard]] Phase phase() const;
         [[nodiscard]] int levelPauseTicksRemaining() const;
-        [[nodiscard]] const std::vector<Position> &snake() const;
-        [[nodiscard]] const std::vector<Position> &walls() const;
-        [[nodiscard]] const std::vector<Position> &foods() const;
+        [[nodiscard]] const std::vector<ColorCell> &snake() const;
+        [[nodiscard]] const std::vector<ColorCell> &walls() const;
+        [[nodiscard]] const std::vector<ColorCell> &foods() const;
 
     private:
         [[nodiscard]] Direction oppositeDirection(Direction direction) const;
@@ -53,15 +53,16 @@ namespace game
         [[nodiscard]] Position nextHeadPosition(Direction direction) const;
         [[nodiscard]] bool hitsWall(const Position &position) const;
         [[nodiscard]] bool hitsSelf(const Position &position) const;
+        void updateSnakeColors();
 
         int boardWidth_{};
         int boardHeight_{};
 
-        std::vector<Position> snake_;
+        std::vector<ColorCell> snake_;
         Direction direction_{Direction::Right};
         std::optional<Direction> pendingDirection_;
 
-        std::vector<Position> food_;
+        std::vector<ColorCell> food_;
 
         int score_{};
         int pendingGrowth_{};
@@ -72,7 +73,7 @@ namespace game
         Phase phase_{Phase::Running};
 
         std::vector<bool> wallMask_;
-        std::vector<Position> wallCells_;
+        std::vector<ColorCell> wallCells_;
 
         std::mt19937 randomEngine_;
     };

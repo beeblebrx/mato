@@ -1,9 +1,6 @@
 #include <SFML/Graphics.hpp>
 
 #include <chrono>
-#include <iomanip>
-#include <string>
-#include <vector>
 
 #include "game/GameState.hpp"
 #include "game/LevelData.hpp"
@@ -40,6 +37,7 @@ int main()
     sf::Clock frameClock;
     std::chrono::milliseconds accumulator{0};
     render::WindowTitle windowTitle(window, state);
+    const sf::RectangleShape cellPrototype = assets.createCellPrototype();
 
     windowTitle.update();
 
@@ -80,13 +78,13 @@ int main()
         window.draw(assets.playfieldBackground());
 
         // Render walls
-        cellRenderer.renderCells(assets.createWallCell(), state.walls());
+        cellRenderer.renderCells(cellPrototype, state.walls());
 
         // Render food
-        cellRenderer.renderCells(assets.createFoodCell(), state.foods());
+        cellRenderer.renderCells(cellPrototype, state.foods());
 
         // Render snake
-        cellRenderer.renderCells(assets.createSnakeCell(), state.snake());
+        cellRenderer.renderCells(cellPrototype, state.snake());
 
         sf::Text overlayText = assets.createOverlayText();
         overlayText.setString(render::GameText::statusText(state));

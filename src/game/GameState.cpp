@@ -14,6 +14,15 @@ namespace game
 
         constexpr int kInitialLength = 3;
         constexpr int kLevelPauseTicks = 25;
+        const sf::Color kSnakeBodyCycle[] = {
+            kSnakeBodyShade1,
+            kSnakeBodyShade2,
+            kSnakeBodyShade3};
+
+        bool hasPosition(const ColorCell &cell, const Position &position)
+        {
+            return cell.position == position;
+        }
 
     }
 
@@ -92,9 +101,13 @@ namespace game
             return;
         }
 
-        snake_.insert(snake_.begin(), nextHead);
+        snake_.insert(snake_.begin(), ColorCell{nextHead, kSnakeHeadColor});
 
-        const auto eatenFood = std::find(food_.begin(), food_.end(), nextHead);
+        const auto eatenFood = std::find_if(food_.begin(), food_.end(),
+                                            [&nextHead](const ColorCell &cell)
+                                            {
+                                                return hasPosition(cell, nextHead);
+                                            });
         if (eatenFood != food_.end())
         {
             food_.erase(eatenFood);
@@ -121,6 +134,8 @@ namespace game
         {
             snake_.pop_back();
         }
+
+        updateSnakeColors();
     }
 
     void GameState::restart()
@@ -179,17 +194,17 @@ namespace game
         return levelPauseTicksRemaining_;
     }
 
-    const std::vector<Position> &GameState::snake() const
+    const std::vector<ColorCell> &GameState::snake() const
     {
         return snake_;
     }
 
-    const std::vector<Position> &GameState::walls() const
+    const std::vector<ColorCell> &GameState::walls() const
     {
         return wallCells_;
     }
 
-    const std::vector<Position> &GameState::foods() const
+    const std::vector<ColorCell> &GameState::foods() const
     {
         return food_;
     }
@@ -246,7 +261,7 @@ namespace game
                 {
                     const std::size_t index = static_cast<std::size_t>(y * boardWidth_ + x);
                     wallMask_[index] = true;
-                    wallCells_.push_back({x, y});
+                    wallCells_.push_back({{x, y}, kWallColor});
                 }
             }
         }
@@ -261,7 +276,7 @@ namespace game
 
         snake_.clear();
         snake_.reserve(kInitialLength);
-        snake_.push_back(level.start);
+        snake_.push_back({level.start, kSnakeHeadColor});
 
         Position segment = level.start;
         const Direction tailDirection = oppositeDirection(direction_);
@@ -288,8 +303,10 @@ namespace game
                 throw std::runtime_error("Invalid snake spawn for level");
             }
 
-            snake_.push_back(segment);
+            snake_.push_back({segment, kSnakeBodyShade1});
         }
+
+        updateSnakeColors();
 
         foodsEatenInLevel_ = 0;
         pendingGrowth_ = 0;
@@ -325,7 +342,7 @@ namespace game
 
     Position GameState::nextHeadPosition(Direction direction) const
     {
-        Position next = snake_.front();
+        Position next = snake_.front().position;
 
         switch (direction)
         {
@@ -353,14 +370,29 @@ namespace game
 
     bool GameState::hitsSelf(const Position &position) const
     {
-        for (const Position &segment : snake_)
+        for (const ColorCell &segment : snake_)
         {
-            if (segment == position)
+            if (hasPosition(segment, position))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    void GameState::updateSnakeColors()
+    {
+        if (snake_.empty())
+        {
+            return;
+        }
+
+        snake_.front().color = kSnakeHeadColor;
+
+        for (std::size_t i = 1; i < snake_.size(); ++i)
+        {
+            snake_[i].color = kSnakeBodyCycle[(i - 1) % std::size(kSnakeBodyCycle)];
+        }
     }
 
 } // namespace game

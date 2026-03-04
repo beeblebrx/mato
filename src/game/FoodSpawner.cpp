@@ -7,11 +7,11 @@
 namespace game
 {
 
-    Position FoodSpawner::spawn(
+    ColorCell FoodSpawner::spawn(
         std::mt19937 &randomEngine,
         int width,
         int height,
-        const std::vector<Position> &snake,
+        const std::vector<ColorCell> &snake,
         const std::vector<bool> &blockedCells)
     {
         std::vector<Position> freeCells;
@@ -26,7 +26,11 @@ namespace game
                 const Position cell{x, y};
                 const size_t index = static_cast<size_t>(y * width + x);
                 const bool blocked = hasBlockedCells && index < blockedCells.size() && blockedCells[index];
-                const auto occupied = std::find(snake.begin(), snake.end(), cell) != snake.end();
+                const auto occupied = std::find_if(snake.begin(), snake.end(),
+                                                   [&cell](const ColorCell &snakeCell)
+                                                   {
+                                                       return snakeCell.position == cell;
+                                                   }) != snake.end();
                 if (!occupied && !blocked)
                 {
                     freeCells.push_back(cell);
@@ -40,7 +44,7 @@ namespace game
         }
 
         std::uniform_int_distribution<size_t> distribution(0, freeCells.size() - 1);
-        return freeCells[distribution(randomEngine)];
+        return {freeCells[distribution(randomEngine)], kFoodColor};
     }
 
 }

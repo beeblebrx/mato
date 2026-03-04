@@ -11,11 +11,11 @@ namespace game
     class FoodSpawner
     {
     public:
-        static Position spawn(
+        static ColorCell spawn(
             std::mt19937 &randomEngine,
             int width,
             int height,
-            const std::vector<Position> &snake,
+            const std::vector<ColorCell> &snake,
             const std::vector<bool> &blockedCells);
     };
 

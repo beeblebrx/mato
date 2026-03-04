@@ -10,13 +10,14 @@ namespace render
     {
     }
 
-    void CellRenderer::renderCells(sf::RectangleShape cell, const std::vector<game::Position> &positions) const
+    void CellRenderer::renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells) const
     {
-        for (const game::Position &position : positions)
+        for (const game::ColorCell &cellData : cells)
         {
+            cell.setFillColor(cellData.color);
             cell.setPosition(
-                static_cast<float>(position.x * cellSize_ + 1),
-                static_cast<float>(statusAreaHeight_ + position.y * cellSize_ + 1));
+                static_cast<float>(cellData.position.x * cellSize_ + 1),
+                static_cast<float>(statusAreaHeight_ + cellData.position.y * cellSize_ + 1));
             target_.draw(cell);
         }
     }

@@ -13,7 +13,7 @@ namespace render
     public:
         CellRenderer(sf::RenderTarget &target, int cellSize, int statusAreaHeight);
 
-        void renderCells(sf::RectangleShape cell, const std::vector<game::Position> &positions) const;
+        void renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells) const;
 
     private:
         int cellSize_;

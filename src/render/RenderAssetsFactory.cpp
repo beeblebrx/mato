@@ -8,9 +8,7 @@ namespace render
     RenderAssetsFactory::RenderAssetsFactory(int gridWidth, int gridHeight, int cellSize, int statusAreaHeight)
         : statusAreaBackground_(sf::Vector2f(static_cast<float>(gridWidth * cellSize), static_cast<float>(statusAreaHeight))),
           playfieldBackground_(sf::Vector2f(static_cast<float>(gridWidth * cellSize), static_cast<float>(gridHeight * cellSize))),
-          snakeCellPrototype_(sf::Vector2f(static_cast<float>(cellSize - 2), static_cast<float>(cellSize - 2))),
-          foodCellPrototype_(sf::Vector2f(static_cast<float>(cellSize - 2), static_cast<float>(cellSize - 2))),
-          wallCellPrototype_(sf::Vector2f(static_cast<float>(cellSize - 2), static_cast<float>(cellSize - 2)))
+          cellPrototype_(sf::Vector2f(static_cast<float>(cellSize - 2), static_cast<float>(cellSize - 2)))
     {
         if (!font_.loadFromFile("assets/fonts/Comfortaa-Regular.otf"))
         {
@@ -20,10 +18,6 @@ namespace render
         statusAreaBackground_.setFillColor(sf::Color(44, 62, 80));
         playfieldBackground_.setFillColor(sf::Color(24, 24, 24));
         playfieldBackground_.setPosition(0.f, static_cast<float>(statusAreaHeight));
-
-        snakeCellPrototype_.setFillColor(sf::Color(46, 204, 113));
-        foodCellPrototype_.setFillColor(sf::Color(231, 76, 60));
-        wallCellPrototype_.setFillColor(sf::Color(127, 140, 141));
 
         overlayTextPrototype_.setFont(font_);
         overlayTextPrototype_.setCharacterSize(20);
@@ -41,19 +35,9 @@ namespace render
         return playfieldBackground_;
     }
 
-    sf::RectangleShape RenderAssetsFactory::createSnakeCell() const
+    sf::RectangleShape RenderAssetsFactory::createCellPrototype() const
     {
-        return snakeCellPrototype_;
-    }
-
-    sf::RectangleShape RenderAssetsFactory::createFoodCell() const
-    {
-        return foodCellPrototype_;
-    }
-
-    sf::RectangleShape RenderAssetsFactory::createWallCell() const
-    {
-        return wallCellPrototype_;
+        return cellPrototype_;
     }
 
     sf::Text RenderAssetsFactory::createOverlayText() const
