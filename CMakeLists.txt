@@ -18,7 +18,7 @@ add_executable(snake
     src/render/WindowTitle.cpp
     src/render/CellRenderer.cpp
     src/render/StatusRenderer.cpp
-    src/render/SnakeCellColorPicker.cpp
+    src/render/SnakeCellRenderer.cpp
 )
 
 target_include_directories(snake PRIVATE src)

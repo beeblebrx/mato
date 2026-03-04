@@ -22,17 +22,4 @@ namespace render
         }
     }
 
-    void CellRenderer::renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells,
-                                     const CellColorPicker &colorPicker, game::Phase phase) const
-    {
-        for (const game::ColorCell &cellData : cells)
-        {
-            cell.setFillColor(colorPicker.pick(cellData, phase));
-            cell.setPosition(
-                static_cast<float>(cellData.position.x * cellSize_ + 1),
-                static_cast<float>(statusAreaHeight_ + cellData.position.y * cellSize_ + 1));
-            target_.draw(cell);
-        }
-    }
-
 } // namespace render

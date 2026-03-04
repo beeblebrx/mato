@@ -6,7 +6,7 @@
 #include "game/LevelData.hpp"
 #include "input/KeyboardControl.hpp"
 #include "render/CellRenderer.hpp"
-#include "render/SnakeCellColorPicker.hpp"
+#include "render/SnakeCellRenderer.hpp"
 #include "render/RenderAssetsFactory.hpp"
 #include "render/GameText.hpp"
 #include "render/StatusRenderer.hpp"
@@ -37,9 +37,8 @@ int main()
     render::StatusRenderer statusRenderer{
         assets.statusAreaBackground(),
         assets.createOverlayText(),
-        static_cast<float>(kStatusAreaHeight)
-    };
-    render::SnakeCellColorPicker snakeColorPicker;
+        static_cast<float>(kStatusAreaHeight)};
+    render::SnakeCellRenderer snakeRenderer(window, kCellSize, kStatusAreaHeight);
     input::KeyboardControl keyboardControl(state);
 
     sf::Clock frameClock;
@@ -91,7 +90,8 @@ int main()
         cellRenderer.renderCells(cellPrototype, state.foods());
 
         // Render snake
-        cellRenderer.renderCells(cellPrototype, state.snake(), snakeColorPicker, state.phase());
+        snakeRenderer.setTicksRemaining(state.levelPauseTicksRemaining());
+        snakeRenderer.renderCells(cellPrototype, state.snake(), state.phase());
 
         statusRenderer.render(window, state);
 
