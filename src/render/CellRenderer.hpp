@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "game/Types.hpp"
+#include "render/CellColorPicker.hpp"
 
 namespace render
 {
@@ -14,6 +15,8 @@ namespace render
         CellRenderer(sf::RenderTarget &target, int cellSize, int statusAreaHeight);
 
         void renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells) const;
+        void renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells,
+                         const CellColorPicker &colorPicker, game::Phase phase) const;
 
     private:
         int cellSize_;
