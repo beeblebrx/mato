@@ -8,6 +8,7 @@
 #include "render/CellRenderer.hpp"
 #include "render/RenderAssetsFactory.hpp"
 #include "render/GameText.hpp"
+#include "render/StatusRenderer.hpp"
 #include "render/WindowTitle.hpp"
 
 namespace
@@ -32,6 +33,11 @@ int main()
     game::GameState state(kGridWidth, kGridHeight);
     render::RenderAssetsFactory assets(kGridWidth, kGridHeight, kCellSize, kStatusAreaHeight);
     render::CellRenderer cellRenderer(window, kCellSize, kStatusAreaHeight);
+    render::StatusRenderer statusRenderer{
+        assets.statusAreaBackground(),
+        assets.createOverlayText(),
+        static_cast<float>(kStatusAreaHeight)
+    };
     input::KeyboardControl keyboardControl(state);
 
     sf::Clock frameClock;
@@ -74,7 +80,6 @@ int main()
         }
 
         window.clear(sf::Color(24, 24, 24));
-        window.draw(assets.statusAreaBackground());
         window.draw(assets.playfieldBackground());
 
         // Render walls
@@ -86,9 +91,7 @@ int main()
         // Render snake
         cellRenderer.renderCells(cellPrototype, state.snake());
 
-        sf::Text overlayText = assets.createOverlayText();
-        overlayText.setString(render::GameText::statusText(state));
-        window.draw(overlayText);
+        statusRenderer.render(window, state);
 
         window.display();
     }

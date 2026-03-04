@@ -21,7 +21,7 @@ std::string render::GameText::statusText(const game::GameState &state)
 
     if (state.phase() == game::Phase::Running)
     {
-        status += "  Foods left: " + std::to_string(state.foodsRemainingInLevel());
+        status += "  Foods left:";
     }
     else if (state.phase() == game::Phase::LevelPause)
     {
