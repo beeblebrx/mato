@@ -6,7 +6,6 @@
 #include "game/LevelData.hpp"
 #include "input/KeyboardControl.hpp"
 #include "render/CellRenderer.hpp"
-#include "render/SnakeCellRenderer.hpp"
 #include "render/RenderAssetsFactory.hpp"
 #include "render/GameText.hpp"
 #include "render/StatusRenderer.hpp"
@@ -38,7 +37,6 @@ int main()
         assets.statusAreaBackground(),
         assets.createOverlayText(),
         static_cast<float>(kStatusAreaHeight)};
-    render::SnakeCellRenderer snakeRenderer(window, kCellSize, kStatusAreaHeight);
     input::KeyboardControl keyboardControl(state);
 
     sf::Clock frameClock;
@@ -61,7 +59,7 @@ int main()
             if (event.type == sf::Event::KeyPressed)
             {
                 if (state.phase() == game::Phase::Won ||
-                    (state.phase() == game::Phase::GameOver && !snakeRenderer.isGameOverAnimating()))
+                    (state.phase() == game::Phase::GameOver && !state.effectEngine().hasActiveEffects()))
                 {
                     state.restart();
                     accumulator = std::chrono::milliseconds{0};
@@ -77,8 +75,6 @@ int main()
         while (accumulator >= kTickRate)
         {
             state.update();
-            if (state.phase() == game::Phase::GameOver)
-                snakeRenderer.onGameOverTick();
             accumulator -= kTickRate;
             windowTitle.update();
         }
@@ -93,9 +89,7 @@ int main()
         cellRenderer.renderCells(cellPrototype, state.foods());
 
         // Render snake
-        snakeRenderer.setTicksRemaining(state.levelPauseTicksRemaining());
-        snakeRenderer.setFoodEatEffectTicks(state.foodEatEffectTicksRemaining());
-        snakeRenderer.renderCells(cellPrototype, state.snake(), state.phase());
+        cellRenderer.renderCells(cellPrototype, state.effectSnake());
 
         statusRenderer.render(window, state);
 

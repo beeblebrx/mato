@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <string>
 
+#include "game/CelebrationEffect.hpp"
+#include "game/DeathEffect.hpp"
+#include "game/FoodEatEffect.hpp"
 #include "game/FoodSpawner.hpp"
 
 namespace game
@@ -53,6 +56,8 @@ namespace game
 
     void GameState::update()
     {
+        effectEngine_.run(snake_);
+
         if (phase_ == Phase::GameOver || phase_ == Phase::Won)
         {
             return;
@@ -66,6 +71,7 @@ namespace game
             }
             if (levelPauseTicksRemaining_ == 0)
             {
+                effectEngine_.clear();
                 if (currentLevelIndex_ + 1 >= levels().size())
                 {
                     phase_ = Phase::Won;
@@ -86,11 +92,9 @@ namespace game
             levelAdvancePending_ = false;
             phase_ = Phase::LevelPause;
             levelPauseTicksRemaining_ = kLevelPauseTicks;
+            effectEngine_.add(std::make_unique<CelebrationEffect>(snake_, kLevelPauseTicks, randomEngine_));
             return;
         }
-
-        if (foodEatEffectTicks_ > 0)
-            --foodEatEffectTicks_;
 
         if (pendingDirection_.has_value() && !isOpposite(*pendingDirection_))
         {
@@ -104,6 +108,7 @@ namespace game
         {
             phase_ = Phase::GameOver;
             foods_.clear();
+            effectEngine_.add(std::make_unique<DeathEffect>(snake_, 20));
             return;
         }
 
@@ -120,7 +125,7 @@ namespace game
             ++score_;
             ++foodsEatenInLevel_;
             pendingGrowth_ += currentLevel().growthPerFood;
-            foodEatEffectTicks_ = 3;
+            effectEngine_.add(std::make_unique<FoodEatEffect>(snake_, 3));
 
             if (foodsEatenInLevel_ >= currentLevel().foodsToComplete)
             {
@@ -150,8 +155,8 @@ namespace game
         score_ = 0;
         currentLevelIndex_ = 0;
         levelPauseTicksRemaining_ = 0;
-        foodEatEffectTicks_ = 0;
         levelAdvancePending_ = false;
+        effectEngine_.clear();
         phase_ = Phase::Running;
         loadLevel(currentLevelIndex_);
     }
@@ -197,14 +202,16 @@ namespace game
         return phase_;
     }
 
-    unsigned int GameState::levelPauseTicksRemaining() const
+    const std::vector<ColorCell> &GameState::effectSnake() const
     {
-        return levelPauseTicksRemaining_;
+        if (effectEngine_.hasEffects())
+            return effectEngine_.cells();
+        return snake_;
     }
 
-    unsigned int GameState::foodEatEffectTicksRemaining() const
+    const EffectEngine &GameState::effectEngine() const
     {
-        return foodEatEffectTicks_;
+        return effectEngine_;
     }
 
     const std::vector<ColorCell> &GameState::snake() const
@@ -323,7 +330,6 @@ namespace game
         pendingGrowth_ = 0;
         levelAdvancePending_ = false;
         levelPauseTicksRemaining_ = 0;
-        foodEatEffectTicks_ = 0;
 
         foods_.clear();
         foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));

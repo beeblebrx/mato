@@ -18,7 +18,10 @@ add_executable(snake
     src/render/WindowTitle.cpp
     src/render/CellRenderer.cpp
     src/render/StatusRenderer.cpp
-    src/render/SnakeCellRenderer.cpp
+    src/game/FoodEatEffect.cpp
+    src/game/DeathEffect.cpp
+    src/game/CelebrationEffect.cpp
+    src/game/EffectEngine.cpp
 )
 
 target_include_directories(snake PRIVATE src)

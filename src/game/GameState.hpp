@@ -6,6 +6,7 @@
 #include <random>
 #include <vector>
 
+#include "game/EffectEngine.hpp"
 #include "game/LevelData.hpp"
 #include "game/Types.hpp"
 
@@ -37,8 +38,8 @@ namespace game
         [[nodiscard]] unsigned int currentLevelNumber() const;
         [[nodiscard]] int foodsRemainingInLevel() const;
         [[nodiscard]] Phase phase() const;
-        [[nodiscard]] unsigned int levelPauseTicksRemaining() const;
-        [[nodiscard]] unsigned int foodEatEffectTicksRemaining() const;
+        [[nodiscard]] const std::vector<ColorCell> &effectSnake() const;
+        [[nodiscard]] const EffectEngine &effectEngine() const;
         [[nodiscard]] const std::vector<ColorCell> &snake() const;
         [[nodiscard]] const std::vector<ColorCell> &walls() const;
         [[nodiscard]] const std::vector<ColorCell> &foods() const;
@@ -70,7 +71,6 @@ namespace game
         std::size_t currentLevelIndex_{};
         unsigned int tick_{};
         unsigned int levelPauseTicksRemaining_{};
-        unsigned int foodEatEffectTicks_{};
         bool levelAdvancePending_{};
         Phase phase_{Phase::Running};
 
@@ -78,6 +78,7 @@ namespace game
         std::vector<ColorCell> wallCells_;
 
         std::mt19937 randomEngine_;
+        EffectEngine effectEngine_;
     };
 
 } // namespace game
