@@ -60,7 +60,8 @@ int main()
 
             if (event.type == sf::Event::KeyPressed)
             {
-                if (state.phase() == game::Phase::GameOver || state.phase() == game::Phase::Won)
+                if (state.phase() == game::Phase::Won ||
+                    (state.phase() == game::Phase::GameOver && !snakeRenderer.isGameOverAnimating()))
                 {
                     state.restart();
                     accumulator = std::chrono::milliseconds{0};
@@ -76,6 +77,8 @@ int main()
         while (accumulator >= kTickRate)
         {
             state.update();
+            if (state.phase() == game::Phase::GameOver)
+                snakeRenderer.onGameOverTick();
             accumulator -= kTickRate;
             windowTitle.update();
         }

@@ -18,7 +18,6 @@ namespace render
         };
 
         const int COLOR_REGEN_INTERVAL = 2;
-        const int FIRST_TICK = 999;
     }
 
     void SnakeCellRenderer::setTicksRemaining(unsigned int ticks)
@@ -26,8 +25,22 @@ namespace render
         ticksRemaining_ = ticks;
     }
 
+    void SnakeCellRenderer::onGameOverTick()
+    {
+        if (gameOverTick_ <= GAME_OVER_EFFECT_TICKS)
+            ++gameOverTick_;
+    }
+
+    bool SnakeCellRenderer::isGameOverAnimating() const
+    {
+        return gameOverTick_ <= GAME_OVER_EFFECT_TICKS;
+    }
+
     void SnakeCellRenderer::renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells, game::Phase phase)
     {
+        if (phase != game::Phase::GameOver)
+            gameOverTick_ = 0;
+
         if (phase == game::Phase::LevelPause && (lastTickColorsPicked_ == FIRST_TICK || lastTickColorsPicked_ - ticksRemaining_ >= COLOR_REGEN_INTERVAL))
         {
             celebrationColors_.resize(cells.size());
@@ -40,7 +53,13 @@ namespace render
 
         for (std::size_t i = 0; i < cells.size(); ++i)
         {
-            if (phase == game::Phase::LevelPause && i < celebrationColors_.size())
+            if (phase == game::Phase::GameOver)
+            {
+                unsigned int t = std::min(gameOverTick_, GAME_OVER_EFFECT_TICKS);
+                sf::Uint8 red = static_cast<sf::Uint8>(255 - (235 * t / GAME_OVER_EFFECT_TICKS));
+                cell.setFillColor(sf::Color(red, 0, 0));
+            }
+            else if (phase == game::Phase::LevelPause && i < celebrationColors_.size())
                 cell.setFillColor(celebrationColors_[i]);
             else
                 cell.setFillColor(cells[i].color);
