@@ -56,8 +56,12 @@ namespace game
 
     void GameState::update()
     {
+        doUpdate();
         effectEngine_.run(snake_);
+    }
 
+    void GameState::doUpdate()
+    {
         if (phase_ == Phase::GameOver || phase_ == Phase::Won)
         {
             return;
@@ -92,7 +96,7 @@ namespace game
             levelAdvancePending_ = false;
             phase_ = Phase::LevelPause;
             levelPauseTicksRemaining_ = kLevelPauseTicks;
-            effectEngine_.add(std::make_unique<CelebrationEffect>(snake_, kLevelPauseTicks, randomEngine_));
+            effectEngine_.add(std::make_unique<CelebrationEffect>(snake_, kLevelPauseTicks));
             return;
         }
 

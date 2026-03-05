@@ -48,6 +48,7 @@ namespace game
         [[nodiscard]] Direction oppositeDirection(Direction direction) const;
         [[nodiscard]] const std::vector<game::levels::LevelDefinition> &levels() const;
         [[nodiscard]] const game::levels::LevelDefinition &currentLevel() const;
+        void doUpdate();
         void loadLevel(std::size_t levelIndex);
         [[nodiscard]] bool isInsideBoard(const Position &position) const;
         [[nodiscard]] bool isWallCell(const Position &position) const;

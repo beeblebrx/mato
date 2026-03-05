@@ -1,26 +1,69 @@
 #include "game/CelebrationEffect.hpp"
 
-#include <array>
+#include <cmath>
 
 namespace game
 {
 
     namespace
     {
-        const std::array<sf::Color, 6> kCelebrationColors = {
-            sf::Color{240, 240, 240},
-            sf::Color{33, 150, 83},
-            sf::Color{255, 230, 0},
-            sf::Color{139, 90, 43},
-            sf::Color{139, 0, 0},
-            sf::Color{255, 80, 0},
-        };
+        // Degrees of hue shift per tick (controls animation speed)
+        constexpr float kHueShiftPerTick = 18.0f;
+        // How many full rainbow cycles spread across the snake
+        constexpr float kRainbowCycles = 1.5f;
 
-        constexpr unsigned int kColorRegenInterval = 2;
+        sf::Color hsvToRgb(float h, float s, float v)
+        {
+            float c = v * s;
+            float x = c * (1.0f - std::abs(std::fmod(h / 60.0f, 2.0f) - 1.0f));
+            float m = v - c;
+            float r, g, b;
+            if (h < 60)
+            {
+                r = c;
+                g = x;
+                b = 0;
+            }
+            else if (h < 120)
+            {
+                r = x;
+                g = c;
+                b = 0;
+            }
+            else if (h < 180)
+            {
+                r = 0;
+                g = c;
+                b = x;
+            }
+            else if (h < 240)
+            {
+                r = 0;
+                g = x;
+                b = c;
+            }
+            else if (h < 300)
+            {
+                r = x;
+                g = 0;
+                b = c;
+            }
+            else
+            {
+                r = c;
+                g = 0;
+                b = x;
+            }
+            return sf::Color{
+                static_cast<sf::Uint8>((r + m) * 255),
+                static_cast<sf::Uint8>((g + m) * 255),
+                static_cast<sf::Uint8>((b + m) * 255),
+            };
+        }
     }
 
-    CelebrationEffect::CelebrationEffect(std::vector<ColorCell> cells, unsigned int duration, std::mt19937 &rng)
-        : Effect(std::move(cells), duration), rng_(rng)
+    CelebrationEffect::CelebrationEffect(std::vector<ColorCell> cells, unsigned int duration)
+        : Effect(std::move(cells), duration)
     {
         pauses_ = true;
         isFinal_ = true;
@@ -28,17 +71,16 @@ namespace game
 
     void CelebrationEffect::run()
     {
-        if (tick_ == 0 || tick_ - lastRegenTick_ >= kColorRegenInterval)
-        {
-            cachedColors_.resize(cells_.size());
-            std::uniform_int_distribution<std::size_t> dist(0, kCelebrationColors.size() - 1);
-            for (auto &color : cachedColors_)
-                color = kCelebrationColors[dist(rng_)];
-            lastRegenTick_ = tick_;
-        }
+        float n = static_cast<float>(cells_.size());
+        float offset = -static_cast<float>(tick_) * kHueShiftPerTick;
 
         for (std::size_t i = 0; i < cells_.size(); ++i)
-            cells_[i].color = cachedColors_[i];
+        {
+            float hue = std::fmod(kRainbowCycles * 360.0f * static_cast<float>(i) / n + offset, 360.0f);
+            if (hue < 0.0f)
+                hue += 360.0f;
+            cells_[i].color = hsvToRgb(hue, 1.0f, 1.0f);
+        }
     }
 
 } // namespace game
