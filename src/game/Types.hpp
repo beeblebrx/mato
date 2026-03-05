@@ -37,5 +37,6 @@ namespace game
     inline const sf::Color kSnakeBodyShade3{33, 150, 83};
     inline const sf::Color kFoodColor{231, 76, 60};
     inline const sf::Color kWallColor{127, 140, 141};
+    inline const sf::Color kSnakeEatFlashColor{144, 238, 144};
 
 }

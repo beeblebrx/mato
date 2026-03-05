@@ -25,6 +25,11 @@ namespace render
         ticksRemaining_ = ticks;
     }
 
+    void SnakeCellRenderer::setFoodEatEffectTicks(unsigned int ticks)
+    {
+        foodEatEffectTicks_ = ticks;
+    }
+
     void SnakeCellRenderer::onGameOverTick()
     {
         if (gameOverTick_ <= GAME_OVER_EFFECT_TICKS)
@@ -51,6 +56,20 @@ namespace render
             lastTickColorsPicked_ = ticksRemaining_;
         }
 
+        if (phase == game::Phase::Running && foodEatEffectTicks_ > 0)
+        {
+            if (preEatColors_.size() != cells.size())
+            {
+                preEatColors_.resize(cells.size());
+                for (std::size_t i = 0; i < cells.size(); ++i)
+                    preEatColors_[i] = cells[i].color;
+            }
+        }
+        else
+        {
+            preEatColors_.clear();
+        }
+
         for (std::size_t i = 0; i < cells.size(); ++i)
         {
             if (phase == game::Phase::GameOver)
@@ -61,6 +80,16 @@ namespace render
             }
             else if (phase == game::Phase::LevelPause && i < celebrationColors_.size())
                 cell.setFillColor(celebrationColors_[i]);
+            else if (foodEatEffectTicks_ > 0 && i < preEatColors_.size())
+            {
+                float blend = foodEatEffectTicks_ / 3.0f;
+                const sf::Color &orig = preEatColors_[i];
+                const sf::Color &flash = game::kSnakeEatFlashColor;
+                cell.setFillColor(sf::Color(
+                    static_cast<sf::Uint8>(orig.r + blend * (flash.r - orig.r)),
+                    static_cast<sf::Uint8>(orig.g + blend * (flash.g - orig.g)),
+                    static_cast<sf::Uint8>(orig.b + blend * (flash.b - orig.b))));
+            }
             else
                 cell.setFillColor(cells[i].color);
             cell.setPosition(

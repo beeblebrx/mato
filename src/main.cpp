@@ -94,6 +94,7 @@ int main()
 
         // Render snake
         snakeRenderer.setTicksRemaining(state.levelPauseTicksRemaining());
+        snakeRenderer.setFoodEatEffectTicks(state.foodEatEffectTicksRemaining());
         snakeRenderer.renderCells(cellPrototype, state.snake(), state.phase());
 
         statusRenderer.render(window, state);

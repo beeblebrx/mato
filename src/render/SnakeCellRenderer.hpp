@@ -16,6 +16,7 @@ namespace render
         using CellRenderer::CellRenderer;
 
         void setTicksRemaining(unsigned int ticks);
+        void setFoodEatEffectTicks(unsigned int ticks);
         void renderCells(sf::RectangleShape cell, const std::vector<game::ColorCell> &cells, game::Phase phase);
         void onGameOverTick();
         bool isGameOverAnimating() const;
@@ -25,6 +26,8 @@ namespace render
         static constexpr unsigned int GAME_OVER_EFFECT_TICKS = 20;
         unsigned int ticksRemaining_ = 0;
         unsigned int gameOverTick_ = 0;
+        unsigned int foodEatEffectTicks_ = 0;
+        std::vector<sf::Color> preEatColors_;
         std::vector<sf::Color> celebrationColors_;
         unsigned int lastTickColorsPicked_ = FIRST_TICK;
     };

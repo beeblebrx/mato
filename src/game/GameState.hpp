@@ -38,6 +38,7 @@ namespace game
         [[nodiscard]] int foodsRemainingInLevel() const;
         [[nodiscard]] Phase phase() const;
         [[nodiscard]] unsigned int levelPauseTicksRemaining() const;
+        [[nodiscard]] unsigned int foodEatEffectTicksRemaining() const;
         [[nodiscard]] const std::vector<ColorCell> &snake() const;
         [[nodiscard]] const std::vector<ColorCell> &walls() const;
         [[nodiscard]] const std::vector<ColorCell> &foods() const;
@@ -69,6 +70,7 @@ namespace game
         std::size_t currentLevelIndex_{};
         unsigned int tick_{};
         unsigned int levelPauseTicksRemaining_{};
+        unsigned int foodEatEffectTicks_{};
         bool levelAdvancePending_{};
         Phase phase_{Phase::Running};
 

@@ -89,6 +89,9 @@ namespace game
             return;
         }
 
+        if (foodEatEffectTicks_ > 0)
+            --foodEatEffectTicks_;
+
         if (pendingDirection_.has_value() && !isOpposite(*pendingDirection_))
         {
             direction_ = *pendingDirection_;
@@ -117,6 +120,7 @@ namespace game
             ++score_;
             ++foodsEatenInLevel_;
             pendingGrowth_ += currentLevel().growthPerFood;
+            foodEatEffectTicks_ = 3;
 
             if (foodsEatenInLevel_ >= currentLevel().foodsToComplete)
             {
@@ -146,6 +150,7 @@ namespace game
         score_ = 0;
         currentLevelIndex_ = 0;
         levelPauseTicksRemaining_ = 0;
+        foodEatEffectTicks_ = 0;
         levelAdvancePending_ = false;
         phase_ = Phase::Running;
         loadLevel(currentLevelIndex_);
@@ -195,6 +200,11 @@ namespace game
     unsigned int GameState::levelPauseTicksRemaining() const
     {
         return levelPauseTicksRemaining_;
+    }
+
+    unsigned int GameState::foodEatEffectTicksRemaining() const
+    {
+        return foodEatEffectTicks_;
     }
 
     const std::vector<ColorCell> &GameState::snake() const
@@ -313,6 +323,7 @@ namespace game
         pendingGrowth_ = 0;
         levelAdvancePending_ = false;
         levelPauseTicksRemaining_ = 0;
+        foodEatEffectTicks_ = 0;
 
         foods_.clear();
         foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
