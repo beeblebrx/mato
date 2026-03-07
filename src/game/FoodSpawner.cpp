@@ -12,7 +12,8 @@ namespace game
         int width,
         int height,
         const std::vector<ColorCell> &snake,
-        const std::vector<bool> &blockedCells)
+        const std::vector<bool> &blockedCells,
+        const std::vector<ColorCell> &existingFoods)
     {
         std::vector<Position> freeCells;
         freeCells.reserve(static_cast<size_t>(width * height));
@@ -43,8 +44,33 @@ namespace game
             throw std::runtime_error("No free cells available for spawning food");
         }
 
-        std::uniform_int_distribution<size_t> distribution(0, freeCells.size() - 1);
-        return {freeCells[distribution(randomEngine)], kFoodColor};
+        auto isTooClose = [&](const Position &p)
+        {
+            for (const auto &food : existingFoods)
+            {
+                int dist = std::abs(p.x - food.position.x) + std::abs(p.y - food.position.y);
+                if (dist < kMinFoodSpawnDistance)
+                    return true;
+            }
+            if (!snake.empty())
+            {
+                int dist = std::abs(p.x - snake[0].position.x) + std::abs(p.y - snake[0].position.y);
+                if (dist < kMinFoodSpawnDistance)
+                    return true;
+            }
+            return false;
+        };
+
+        std::vector<Position> candidates;
+        for (const auto &p : freeCells)
+            if (!isTooClose(p))
+                candidates.push_back(p);
+
+        if (candidates.empty())
+            candidates = freeCells;
+
+        std::uniform_int_distribution<size_t> distribution(0, candidates.size() - 1);
+        return {candidates[distribution(randomEngine)], kFoodColor};
     }
 
 }

@@ -8,6 +8,8 @@
 namespace game
 {
 
+    inline constexpr int kMinFoodSpawnDistance = 10;
+
     class FoodSpawner
     {
     public:
@@ -16,7 +18,8 @@ namespace game
             int width,
             int height,
             const std::vector<ColorCell> &snake,
-            const std::vector<bool> &blockedCells);
+            const std::vector<bool> &blockedCells,
+            const std::vector<ColorCell> &existingFoods);
     };
 
 }

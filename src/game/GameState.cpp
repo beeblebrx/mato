@@ -140,7 +140,7 @@ namespace game
             }
             else
             {
-                foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
+                foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_, foods_));
             }
         }
 
@@ -344,7 +344,7 @@ namespace game
         levelPauseTicksRemaining_ = 0;
 
         foods_.clear();
-        foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_));
+        foods_.push_back(FoodSpawner::spawn(randomEngine_, boardWidth_, boardHeight_, snake_, wallMask_, foods_));
     }
 
     bool GameState::isInsideBoard(const Position &position) const
