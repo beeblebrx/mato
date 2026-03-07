@@ -1,5 +1,6 @@
 #include "GameText.hpp"
 #include "game/GameState.hpp"
+#include <SFML/Graphics/Color.hpp>
 
 std::string render::GameText::windowTitle(const game::GameState &state)
 {
@@ -21,7 +22,6 @@ std::string render::GameText::statusText(const game::GameState &state)
 
     if (state.phase() == game::Phase::Running)
     {
-        status += "  Next: " + std::to_string(state.currentFoodReward()) + " pts";
         status += "\nFoods left:";
     }
     else if (state.phase() == game::Phase::LevelPause)
@@ -38,4 +38,31 @@ std::string render::GameText::statusText(const game::GameState &state)
     }
 
     return status;
+}
+
+std::string render::GameText::rewardText(const game::GameState &state)
+{
+    return "Next: " + std::to_string(state.currentFoodReward()) + " pts";
+}
+
+sf::Color render::GameText::rewardColor(const game::GameState &state)
+{
+    const int reward = state.currentFoodReward();
+    const float r = static_cast<float>(reward);
+
+    auto lerp = [](sf::Color a, sf::Color b, float t) -> sf::Color
+    {
+        return sf::Color(
+            static_cast<sf::Uint8>(a.r + (b.r - a.r) * t),
+            static_cast<sf::Uint8>(a.g + (b.g - a.g) * t),
+            static_cast<sf::Uint8>(a.b + (b.b - a.b) * t));
+    };
+
+    const sf::Color orange(255, 180, 0);
+    const sf::Color white(255, 255, 255);
+    const sf::Color gray(130, 130, 130);
+
+    if (r >= 500.f)
+        return lerp(white, orange, (r - 500.f) / 500.f);
+    return lerp(gray, white, (r - 10.f) / 490.f);
 }

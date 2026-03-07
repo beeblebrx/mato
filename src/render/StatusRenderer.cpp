@@ -8,7 +8,7 @@ namespace render
     StatusRenderer::StatusRenderer(sf::RectangleShape background,
                                    sf::Text textPrototype,
                                    float statusAreaHeight)
-        : background_(std::move(background)), text_(std::move(textPrototype)), statusAreaHeight_(statusAreaHeight)
+        : background_(std::move(background)), text_(textPrototype), rewardText_(std::move(textPrototype)), statusAreaHeight_(statusAreaHeight)
     {
         dot_.setRadius(6.f);
         dot_.setFillColor(game::kFoodColor);
@@ -22,6 +22,16 @@ namespace render
 
         text_.setString(GameText::statusText(state));
         window.draw(text_);
+
+        if (state.phase() == game::Phase::Running)
+        {
+            rewardText_.setString(GameText::rewardText(state));
+            rewardText_.setFillColor(GameText::rewardColor(state));
+            const float x = background_.getSize().x - rewardText_.getGlobalBounds().width - 10.f;
+            const float y = text_.getPosition().y;
+            rewardText_.setPosition(x, y);
+            window.draw(rewardText_);
+        }
 
         if (!state.isGameOver())
         {

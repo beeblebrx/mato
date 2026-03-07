@@ -13,6 +13,7 @@ public:
 private:
     sf::RectangleShape background_;
     sf::Text text_;
+    sf::Text rewardText_;
     sf::CircleShape dot_;
     float statusAreaHeight_;
 };
