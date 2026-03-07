@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
-add_executable(snake
+add_executable(mato
     src/main.cpp
     src/render/RenderAssetsFactory.cpp
     src/input/KeyboardControl.cpp
@@ -24,11 +24,11 @@ add_executable(snake
     src/game/EffectEngine.cpp
 )
 
-target_include_directories(snake PRIVATE src)
-target_link_libraries(snake PRIVATE sfml-graphics sfml-window sfml-system)
+target_include_directories(mato PRIVATE src)
+target_link_libraries(mato PRIVATE sfml-graphics sfml-window sfml-system)
 
-add_custom_command(TARGET snake POST_BUILD
+add_custom_command(TARGET mato POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/assets
-            $<TARGET_FILE_DIR:snake>/assets
+            $<TARGET_FILE_DIR:mato>/assets
 )
