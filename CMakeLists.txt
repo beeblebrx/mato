@@ -22,6 +22,7 @@ add_executable(mato
     src/game/DeathEffect.cpp
     src/game/CelebrationEffect.cpp
     src/game/EffectEngine.cpp
+    src/game/FoodReward.cpp
 )
 
 target_include_directories(mato PRIVATE src)

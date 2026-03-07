@@ -56,6 +56,7 @@ namespace game
 
     void GameState::update()
     {
+        foodReward_.update();
         doUpdate();
         effectEngine_.run(snake_);
     }
@@ -126,7 +127,8 @@ namespace game
         if (eatenFood != foods_.end())
         {
             foods_.erase(eatenFood);
-            ++score_;
+            score_ += foodReward_.value();
+            foodReward_.reset();
             ++foodsEatenInLevel_;
             pendingGrowth_ += currentLevel().growthPerFood;
             effectEngine_.add(std::make_unique<FoodEatEffect>(snake_, 3));
@@ -161,6 +163,7 @@ namespace game
         levelPauseTicksRemaining_ = 0;
         levelAdvancePending_ = false;
         effectEngine_.clear();
+        foodReward_ = {};
         phase_ = Phase::Running;
         loadLevel(currentLevelIndex_);
     }
@@ -188,6 +191,11 @@ namespace game
     unsigned int GameState::score() const
     {
         return score_;
+    }
+
+    unsigned int GameState::currentFoodReward() const
+    {
+        return foodReward_.value();
     }
 
     unsigned int GameState::currentLevelNumber() const
