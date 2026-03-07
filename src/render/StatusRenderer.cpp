@@ -26,8 +26,8 @@ namespace render
         if (!state.isGameOver())
         {
             const sf::FloatRect textBounds = text_.getGlobalBounds();
-            const float dotCenterY = textBounds.top + textBounds.height / 2.f;
-            const float dotStartX = textBounds.left + textBounds.width + 20.f;
+            const float dotCenterY = textBounds.top + textBounds.height * .85f;
+            const float dotStartX = textBounds.left + 130.f;
             const float dotSpacing = 18.f;
             const int remaining = state.foodsRemainingInLevel();
             for (int i = 0; i < remaining; ++i)
