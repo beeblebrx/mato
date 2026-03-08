@@ -18,10 +18,10 @@ add_executable(mato
     src/render/WindowTitle.cpp
     src/render/CellRenderer.cpp
     src/render/StatusRenderer.cpp
-    src/game/FoodEatEffect.cpp
-    src/game/DeathEffect.cpp
-    src/game/CelebrationEffect.cpp
-    src/game/EffectEngine.cpp
+    src/render/effects/FoodEatEffect.cpp
+    src/render/effects/DeathEffect.cpp
+    src/render/effects/CelebrationEffect.cpp
+    src/render/EffectEngine.cpp
     src/game/FoodReward.cpp
 )
 

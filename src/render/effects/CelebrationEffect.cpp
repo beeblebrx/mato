@@ -1,15 +1,13 @@
-#include "game/CelebrationEffect.hpp"
+#include "render/effects/CelebrationEffect.hpp"
 
 #include <cmath>
 
-namespace game
+namespace render
 {
 
     namespace
     {
-        // Degrees of hue shift per tick (controls animation speed)
         constexpr float kHueShiftPerTick = 18.0f;
-        // How many full rainbow cycles spread across the snake
         constexpr float kRainbowCycles = 1.5f;
 
         sf::Color hsvToRgb(float h, float s, float v)
@@ -62,7 +60,7 @@ namespace game
         }
     }
 
-    CelebrationEffect::CelebrationEffect(std::vector<ColorCell> cells, unsigned int duration)
+    CelebrationEffect::CelebrationEffect(std::vector<game::ColorCell> cells, unsigned int duration)
         : Effect(std::move(cells), duration)
     {
         pauses_ = true;
@@ -83,4 +81,4 @@ namespace game
         }
     }
 
-} // namespace game
+} // namespace render

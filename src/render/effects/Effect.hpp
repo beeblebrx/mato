@@ -4,13 +4,13 @@
 
 #include "game/Types.hpp"
 
-namespace game
+namespace render
 {
 
     class Effect
     {
     public:
-        Effect(std::vector<ColorCell> cells, unsigned int duration)
+        Effect(std::vector<game::ColorCell> cells, unsigned int duration)
             : cells_(std::move(cells)), duration_(duration) {}
         virtual ~Effect() = default;
 
@@ -21,10 +21,10 @@ namespace game
         bool isFinal() const { return isFinal_; }
         unsigned int duration() const { return duration_; }
         bool expired() const { return tick_ >= duration_; }
-        const std::vector<ColorCell> &cells() const { return cells_; }
+        const std::vector<game::ColorCell> &cells() const { return cells_; }
 
     protected:
-        std::vector<ColorCell> cells_;
+        std::vector<game::ColorCell> cells_;
         unsigned int duration_;
         unsigned int tick_ = 0;
         bool isPriority_ = false;
@@ -34,4 +34,4 @@ namespace game
         friend class EffectEngine;
     };
 
-} // namespace game
+} // namespace render

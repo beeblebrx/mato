@@ -1,16 +1,39 @@
-#include "game/EffectEngine.hpp"
+#include "render/EffectEngine.hpp"
 
 #include <algorithm>
 
-namespace game
+#include "render/effects/CelebrationEffect.hpp"
+#include "render/effects/DeathEffect.hpp"
+#include "render/effects/FoodEatEffect.hpp"
+
+namespace render
 {
+
+    void EffectEngine::trigger(game::Event event, const std::vector<game::ColorCell> &snake)
+    {
+        switch (event)
+        {
+        case game::Event::FoodEaten:
+            add(std::make_unique<FoodEatEffect>(snake, 3));
+            break;
+        case game::Event::Death:
+            add(std::make_unique<DeathEffect>(snake, 20));
+            break;
+        case game::Event::LevelComplete:
+            add(std::make_unique<CelebrationEffect>(snake, 25));
+            break;
+        case game::Event::ClearEffects:
+            clear();
+            break;
+        }
+    }
 
     void EffectEngine::add(std::unique_ptr<Effect> effect)
     {
         effects_.push_back(std::move(effect));
     }
 
-    void EffectEngine::run(const std::vector<ColorCell> &currentCells)
+    void EffectEngine::run(const std::vector<game::ColorCell> &currentCells)
     {
         bool hasFinalExpired = std::any_of(effects_.begin(), effects_.end(),
                                              [](const auto &e)
@@ -72,9 +95,9 @@ namespace game
                            { return !e->expired(); });
     }
 
-    const std::vector<ColorCell> &EffectEngine::cells() const
+    const std::vector<game::ColorCell> &EffectEngine::cells() const
     {
         return outputCells_;
     }
 
-} // namespace game
+} // namespace render

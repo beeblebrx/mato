@@ -39,4 +39,12 @@ namespace game
     inline const sf::Color kWallColor{127, 140, 141};
     inline const sf::Color kSnakeEatFlashColor{144, 238, 144};
 
+    enum class Event
+    {
+        FoodEaten,
+        Death,
+        LevelComplete,
+        ClearEffects
+    };
+
 }

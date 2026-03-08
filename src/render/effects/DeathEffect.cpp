@@ -1,9 +1,9 @@
-#include "game/DeathEffect.hpp"
+#include "render/effects/DeathEffect.hpp"
 
-namespace game
+namespace render
 {
 
-    DeathEffect::DeathEffect(std::vector<ColorCell> cells, unsigned int duration)
+    DeathEffect::DeathEffect(std::vector<game::ColorCell> cells, unsigned int duration)
         : Effect(std::move(cells), duration)
     {
         isPriority_ = true;
@@ -18,4 +18,4 @@ namespace game
             cell.color = sf::Color(red, 0, 0);
     }
 
-} // namespace game
+} // namespace render

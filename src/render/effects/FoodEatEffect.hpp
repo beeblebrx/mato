@@ -1,18 +1,18 @@
 #pragma once
 
-#include "game/Effect.hpp"
+#include "render/effects/Effect.hpp"
 
-namespace game
+namespace render
 {
 
     class FoodEatEffect : public Effect
     {
     public:
-        FoodEatEffect(std::vector<ColorCell> cells, unsigned int duration);
+        FoodEatEffect(std::vector<game::ColorCell> cells, unsigned int duration);
         void run() override;
 
     private:
         std::vector<sf::Color> originalColors_;
     };
 
-} // namespace game
+} // namespace render

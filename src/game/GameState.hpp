@@ -6,7 +6,6 @@
 #include <random>
 #include <vector>
 
-#include "game/EffectEngine.hpp"
 #include "game/FoodReward.hpp"
 #include "game/LevelData.hpp"
 #include "game/Types.hpp"
@@ -31,6 +30,8 @@ namespace game
         void update();
         void restart();
 
+        std::vector<Event> drainEvents();
+
         [[nodiscard]] bool isGameOver() const;
         [[nodiscard]] bool isWon() const;
         [[nodiscard]] unsigned int width() const;
@@ -40,8 +41,6 @@ namespace game
         [[nodiscard]] int foodsRemainingInLevel() const;
         [[nodiscard]] Phase phase() const;
         [[nodiscard]] unsigned int currentFoodReward() const;
-        [[nodiscard]] const std::vector<ColorCell> &effectSnake() const;
-        [[nodiscard]] const EffectEngine &effectEngine() const;
         [[nodiscard]] const std::vector<ColorCell> &snake() const;
         [[nodiscard]] const std::vector<ColorCell> &walls() const;
         [[nodiscard]] const std::vector<ColorCell> &foods() const;
@@ -81,8 +80,8 @@ namespace game
         std::vector<ColorCell> wallCells_;
 
         std::mt19937 randomEngine_;
-        EffectEngine effectEngine_;
         FoodReward foodReward_;
+        std::vector<Event> pendingEvents_;
     };
 
 } // namespace game
