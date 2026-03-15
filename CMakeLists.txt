@@ -6,6 +6,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# Re-configure when levels/ directory changes (files added/removed)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/levels")
+file(GLOB LEVEL_FILES "${CMAKE_SOURCE_DIR}/levels/*.level")
+
+set(GENERATED_LEVEL_CPP "${CMAKE_BINARY_DIR}/generated/LevelData_generated.cpp")
+
+add_custom_command(
+    OUTPUT "${GENERATED_LEVEL_CPP}"
+    COMMAND Python3::Interpreter
+            "${CMAKE_SOURCE_DIR}/scripts/generate_levels.py"
+            --input-dir "${CMAKE_SOURCE_DIR}/levels"
+            --output "${GENERATED_LEVEL_CPP}"
+    DEPENDS ${LEVEL_FILES} "${CMAKE_SOURCE_DIR}/scripts/generate_levels.py"
+    COMMENT "Generating LevelData from level files"
+    VERBATIM
+)
 
 add_executable(mato
     src/main.cpp
@@ -13,7 +31,7 @@ add_executable(mato
     src/input/KeyboardControl.cpp
     src/game/GameState.cpp
     src/game/FoodSpawner.cpp
-    src/game/LevelData.cpp
+    ${GENERATED_LEVEL_CPP}
     src/render/GameText.cpp
     src/render/WindowTitle.cpp
     src/render/CellRenderer.cpp

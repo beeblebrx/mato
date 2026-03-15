@@ -14,15 +14,34 @@ A minimal worm/snake game written in C++ with SFML.
 
 ## Level configuration
 
-- Edit level order, wall layouts, foods-to-complete, growth-per-food, and worm start position/direction in `src/game/LevelData.cpp`.
-- Level dimensions are fixed at `30x20` and defined in `src/game/LevelData.hpp`.
-- Use `#` for wall cells and `.` for free cells in each layout row.
+Levels are defined as plain text files in `levels/`, named `01.level`, `02.level`, etc. (filename sort = level order). A Python script converts them to C++ at build time.
+
+Each `.level` file has this format:
+
+```
+foodsToComplete: 8
+growthPerFood: 5
+start: 4, 10
+startDirection: right
+---
+..............................
+..............................
+(20 rows of exactly 30 chars, # = wall, . = free)
+```
+
+- `foodsToComplete` — number of foods to collect to finish the level
+- `growthPerFood` — snake cells added per food eaten
+- `start` — initial head position as `x, y` (must be a free cell)
+- `startDirection` — one of `up`, `down`, `left`, `right`
+- Grid dimensions are fixed at 30x20 (defined in `src/game/LevelData.hpp`)
+
+To add a level, create a new `.level` file in `levels/` and rebuild.
 
 ## Build on Ubuntu/Debian
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential cmake libsfml-dev
+sudo apt install -y build-essential cmake python3 libsfml-dev
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ./build/snake
