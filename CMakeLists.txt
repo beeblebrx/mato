@@ -54,3 +54,18 @@ add_custom_command(TARGET mato POST_BUILD
             ${CMAKE_SOURCE_DIR}/assets
             $<TARGET_FILE_DIR:mato>/assets
 )
+
+add_executable(mato-editor
+    src/editor/main.cpp
+    src/editor/Editor.cpp
+    src/editor/EditorRenderer.cpp
+    src/editor/LevelFileIO.cpp
+)
+target_include_directories(mato-editor PRIVATE src)
+target_link_libraries(mato-editor PRIVATE sfml-graphics sfml-window sfml-system)
+
+add_custom_command(TARGET mato-editor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:mato-editor>/assets
+)
