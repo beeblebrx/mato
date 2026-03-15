@@ -1,6 +1,6 @@
-#include "render/effects/DeathEffect.hpp"
+#include "effects/gfx/DeathEffect.hpp"
 
-namespace render
+namespace effects
 {
 
     DeathEffect::DeathEffect(std::vector<game::ColorCell> cells, unsigned int duration)
@@ -18,4 +18,4 @@ namespace render
             cell.color = sf::Color(red, 0, 0);
     }
 
-} // namespace render
+} // namespace effects

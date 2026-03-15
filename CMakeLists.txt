@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
 add_executable(mato
     src/main.cpp
@@ -18,15 +18,18 @@ add_executable(mato
     src/render/WindowTitle.cpp
     src/render/CellRenderer.cpp
     src/render/StatusRenderer.cpp
-    src/render/effects/FoodEatEffect.cpp
-    src/render/effects/DeathEffect.cpp
-    src/render/effects/CelebrationEffect.cpp
-    src/render/EffectEngine.cpp
+    src/effects/EffectEngine.cpp
+    src/effects/CompositeEffect.cpp
+    src/effects/gfx/FoodEatEffect.cpp
+    src/effects/gfx/DeathEffect.cpp
+    src/effects/gfx/CelebrationEffect.cpp
+    src/effects/sfx/SoundEffect.cpp
+    src/audio/SoundPlayer.cpp
     src/game/FoodReward.cpp
 )
 
 target_include_directories(mato PRIVATE src)
-target_link_libraries(mato PRIVATE sfml-graphics sfml-window sfml-system)
+target_link_libraries(mato PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
 
 add_custom_command(TARGET mato POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

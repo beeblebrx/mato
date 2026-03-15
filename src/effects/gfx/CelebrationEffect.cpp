@@ -1,8 +1,8 @@
-#include "render/effects/CelebrationEffect.hpp"
+#include "effects/gfx/CelebrationEffect.hpp"
 
 #include <cmath>
 
-namespace render
+namespace effects
 {
 
     namespace
@@ -81,4 +81,4 @@ namespace render
         }
     }
 
-} // namespace render
+} // namespace effects

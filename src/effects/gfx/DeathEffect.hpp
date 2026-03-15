@@ -1,8 +1,8 @@
 #pragma once
 
-#include "render/effects/Effect.hpp"
+#include "effects/Effect.hpp"
 
-namespace render
+namespace effects
 {
 
     class DeathEffect : public Effect
@@ -12,4 +12,4 @@ namespace render
         void run() override;
     };
 
-} // namespace render
+} // namespace effects

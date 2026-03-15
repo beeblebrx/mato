@@ -6,7 +6,8 @@
 #include "game/LevelData.hpp"
 #include "input/KeyboardControl.hpp"
 #include "render/CellRenderer.hpp"
-#include "render/EffectEngine.hpp"
+#include "audio/SoundPlayer.hpp"
+#include "effects/EffectEngine.hpp"
 #include "render/RenderAssetsFactory.hpp"
 #include "render/GameText.hpp"
 #include "render/StatusRenderer.hpp"
@@ -32,7 +33,9 @@ int main()
     window.setFramerateLimit(60);
 
     game::GameState state(kGridWidth, kGridHeight);
-    render::EffectEngine effectEngine;
+    audio::SoundPlayer soundPlayer("assets/sounds/");
+    effects::EffectEngine effectEngine;
+    effectEngine.setSoundPlayer(&soundPlayer);
     render::RenderAssetsFactory assets(kGridWidth, kGridHeight, kCellSize, kStatusAreaHeight);
     render::CellRenderer cellRenderer(window, kCellSize, kStatusAreaHeight);
     render::StatusRenderer statusRenderer{

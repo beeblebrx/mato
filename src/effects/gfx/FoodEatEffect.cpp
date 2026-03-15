@@ -1,6 +1,6 @@
-#include "render/effects/FoodEatEffect.hpp"
+#include "effects/gfx/FoodEatEffect.hpp"
 
-namespace render
+namespace effects
 {
 
     FoodEatEffect::FoodEatEffect(std::vector<game::ColorCell> cells, unsigned int duration)
@@ -25,4 +25,4 @@ namespace render
         }
     }
 
-} // namespace render
+} // namespace effects

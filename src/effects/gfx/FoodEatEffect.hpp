@@ -1,8 +1,8 @@
 #pragma once
 
-#include "render/effects/Effect.hpp"
+#include "effects/Effect.hpp"
 
-namespace render
+namespace effects
 {
 
     class FoodEatEffect : public Effect
@@ -15,4 +15,4 @@ namespace render
         std::vector<sf::Color> originalColors_;
     };
 
-} // namespace render
+} // namespace effects

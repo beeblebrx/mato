@@ -4,7 +4,7 @@
 
 #include "game/Types.hpp"
 
-namespace render
+namespace effects
 {
 
     class Effect
@@ -15,6 +15,7 @@ namespace render
         virtual ~Effect() = default;
 
         virtual void run() = 0;
+        virtual void advance() { ++tick_; }
 
         bool isPriority() const { return isPriority_; }
         bool pauses() const { return pauses_; }
@@ -34,4 +35,4 @@ namespace render
         friend class EffectEngine;
     };
 
-} // namespace render
+} // namespace effects

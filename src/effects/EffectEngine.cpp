@@ -1,12 +1,16 @@
-#include "render/EffectEngine.hpp"
+#include "effects/EffectEngine.hpp"
 
 #include <algorithm>
 
-#include "render/effects/CelebrationEffect.hpp"
-#include "render/effects/DeathEffect.hpp"
-#include "render/effects/FoodEatEffect.hpp"
+#include "effects/CompositeEffect.hpp"
+#include "effects/gfx/CelebrationEffect.hpp"
+#include "effects/gfx/DeathEffect.hpp"
+#include "effects/gfx/FoodEatEffect.hpp"
+#include "effects/sfx/DeathSoundEffect.hpp"
+#include "effects/sfx/FoodEatSoundEffect.hpp"
+#include "effects/sfx/LevelCompleteSoundEffect.hpp"
 
-namespace render
+namespace effects
 {
 
     void EffectEngine::trigger(game::Event event, const std::vector<game::ColorCell> &snake)
@@ -14,14 +18,32 @@ namespace render
         switch (event)
         {
         case game::Event::FoodEaten:
-            add(std::make_unique<FoodEatEffect>(snake, 3));
+        {
+            auto gfx = std::make_unique<FoodEatEffect>(snake, 3);
+            std::unique_ptr<Effect> sfx = soundPlayer_
+                                              ? std::make_unique<FoodEatSoundEffect>(*soundPlayer_)
+                                              : nullptr;
+            add(std::make_unique<CompositeEffect>(std::move(gfx), std::move(sfx)));
             break;
+        }
         case game::Event::Death:
-            add(std::make_unique<DeathEffect>(snake, 20));
+        {
+            auto gfx = std::make_unique<DeathEffect>(snake, 20);
+            std::unique_ptr<Effect> sfx = soundPlayer_
+                                              ? std::make_unique<DeathSoundEffect>(*soundPlayer_)
+                                              : nullptr;
+            add(std::make_unique<CompositeEffect>(std::move(gfx), std::move(sfx)));
             break;
+        }
         case game::Event::LevelComplete:
-            add(std::make_unique<CelebrationEffect>(snake, 25));
+        {
+            auto gfx = std::make_unique<CelebrationEffect>(snake, 25);
+            std::unique_ptr<Effect> sfx = soundPlayer_
+                                              ? std::make_unique<LevelCompleteSoundEffect>(*soundPlayer_)
+                                              : nullptr;
+            add(std::make_unique<CompositeEffect>(std::move(gfx), std::move(sfx)));
             break;
+        }
         case game::Event::ClearEffects:
             clear();
             break;
@@ -63,7 +85,7 @@ namespace render
             for (std::size_t i = 0; i < count; ++i)
                 outputCells_[i].color = effectCells[i].color;
 
-            ++effect->tick_;
+            effect->advance();
         }
 
         std::erase_if(effects_, [](const auto &e)
@@ -74,6 +96,11 @@ namespace render
     {
         effects_.clear();
         outputCells_.clear();
+    }
+
+    void EffectEngine::setSoundPlayer(audio::SoundPlayer *player)
+    {
+        soundPlayer_ = player;
     }
 
     bool EffectEngine::hasPausingEffect() const
@@ -100,4 +127,4 @@ namespace render
         return outputCells_;
     }
 
-} // namespace render
+} // namespace effects
