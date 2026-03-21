@@ -49,6 +49,11 @@ add_executable(mato
 target_include_directories(mato PRIVATE src)
 target_link_libraries(mato PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
 
+option(TESTING "Enable testing mode (spacebar completes level)" OFF)
+if(TESTING)
+    target_compile_definitions(mato PRIVATE TESTING)
+endif()
+
 add_custom_command(TARGET mato POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/assets

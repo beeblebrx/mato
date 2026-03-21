@@ -51,6 +51,14 @@ namespace game
         pendingDirection_ = direction;
     }
 
+    void GameState::triggerLevelAdvance()
+    {
+        if (phase_ == Phase::Running)
+        {
+            levelAdvancePending_ = true;
+        }
+    }
+
     void GameState::update()
     {
         foodReward_.update();

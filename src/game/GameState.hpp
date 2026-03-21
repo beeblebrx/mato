@@ -29,6 +29,7 @@ namespace game
         void setDirection(Direction direction);
         void update();
         void restart();
+        void triggerLevelAdvance();
 
         std::vector<Event> drainEvents();
 
