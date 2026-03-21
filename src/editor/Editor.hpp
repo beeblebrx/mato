@@ -56,6 +56,8 @@ namespace editor
         std::string inputBuffer_;
         bool shouldExit_ = false;
         bool shouldSave_ = false;
+        int startEditOrigX_ = 0;
+        int startEditOrigY_ = 0;
     };
 
 }

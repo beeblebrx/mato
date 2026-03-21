@@ -96,7 +96,36 @@ namespace editor
             }
         }
 
-        // Digit keys for numeric/start fields
+        // Start field: move start position with arrow keys
+        if (activeField_ == Field::Start)
+        {
+            int nx = level_.startX;
+            int ny = level_.startY;
+            switch (key)
+            {
+            case sf::Keyboard::Up:    --ny; break;
+            case sf::Keyboard::Down:  ++ny; break;
+            case sf::Keyboard::Left:  --nx; break;
+            case sf::Keyboard::Right: ++nx; break;
+            case sf::Keyboard::Enter:
+                mode_ = Mode::Normal;
+                return;
+            case sf::Keyboard::Escape:
+                cancelFieldEdit();
+                return;
+            default:
+                return;
+            }
+            if (nx >= 0 && nx < kLevelWidth && ny >= 0 && ny < kLevelHeight &&
+                level_.rows[ny][nx] == '.')
+            {
+                level_.startX = nx;
+                level_.startY = ny;
+            }
+            return;
+        }
+
+        // Digit keys for numeric fields
         if (key >= sf::Keyboard::Num0 && key <= sf::Keyboard::Num9)
         {
             char digit = '0' + (key - sf::Keyboard::Num0);
@@ -107,13 +136,6 @@ namespace editor
         {
             char digit = '0' + (key - sf::Keyboard::Numpad0);
             inputBuffer_ += digit;
-            return;
-        }
-
-        // Comma for Start field
-        if (key == sf::Keyboard::Comma && activeField_ == Field::Start)
-        {
-            inputBuffer_ += ',';
             return;
         }
 
@@ -192,7 +214,8 @@ namespace editor
             inputBuffer_ = std::to_string(level_.growthPerFood);
             break;
         case Field::Start:
-            inputBuffer_ = std::to_string(level_.startX) + "," + std::to_string(level_.startY);
+            startEditOrigX_ = level_.startX;
+            startEditOrigY_ = level_.startY;
             break;
         default:
             break;
@@ -224,21 +247,8 @@ namespace editor
             break;
         }
         case Field::Start:
-        {
-            auto commaPos = inputBuffer_.find(',');
-            if (commaPos != std::string::npos)
-            {
-                int x = std::stoi(inputBuffer_.substr(0, commaPos));
-                int y = std::stoi(inputBuffer_.substr(commaPos + 1));
-                if (x >= 0 && x < kLevelWidth && y >= 0 && y < kLevelHeight &&
-                    level_.rows[y][x] == '.')
-                {
-                    level_.startX = x;
-                    level_.startY = y;
-                }
-            }
+            // Position already updated live via arrow keys; nothing to do
             break;
-        }
         default:
             break;
         }
@@ -249,6 +259,11 @@ namespace editor
 
     void Editor::cancelFieldEdit()
     {
+        if (activeField_ == Field::Start)
+        {
+            level_.startX = startEditOrigX_;
+            level_.startY = startEditOrigY_;
+        }
         mode_ = Mode::Normal;
         inputBuffer_.clear();
     }

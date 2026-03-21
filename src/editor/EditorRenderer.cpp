@@ -117,7 +117,8 @@ namespace editor
             std::string display;
             if (editing && editor.activeField() == field)
             {
-                display = prefix + rest + ": " + editor.inputBuffer() + "_";
+                bool arrowKeyField = field == Field::Direction || field == Field::Start;
+                display = prefix + rest + ": " + (arrowKeyField ? value : editor.inputBuffer() + "_");
                 text.setFillColor(kEditingColor);
             }
             else
@@ -140,8 +141,10 @@ namespace editor
         drawField(370.f, y1, "Growth per food", 'G',
                   std::to_string(level.growthPerFood), Field::Growth);
 
-        drawField(20.f, y2, "Start", 'S',
-                  std::to_string(level.startX) + ", " + std::to_string(level.startY), Field::Start);
+        std::string startDisplay = std::to_string(level.startX) + ", " + std::to_string(level.startY);
+        if (editing && editor.activeField() == Field::Start)
+            startDisplay = "(use arrow keys, Enter to confirm)";
+        drawField(20.f, y2, "Start", 'S', startDisplay, Field::Start);
 
         std::string dirDisplay = level.startDirection;
         if (editing && editor.activeField() == Field::Direction)
