@@ -26,6 +26,14 @@ namespace input
         case sf::Keyboard::D:
             state_.setDirection(game::Direction::Right);
             break;
+#ifdef TESTING
+        case sf::Keyboard::Space:
+            state_.triggerLevelAdvance();
+            break;
+#endif
+        case sf::Keyboard::P:
+            state_.togglePause();
+            break;
         default:
             break;
         }

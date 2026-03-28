@@ -72,13 +72,7 @@ int main()
                     windowTitle.update();
                     continue;
                 }
-#ifdef TESTING
-                if (event.key.code == sf::Keyboard::Space)
-                {
-                    state.triggerLevelAdvance();
-                    continue;
-                }
-#endif
+
                 keyboardControl.handle(event.key.code);
             }
         }

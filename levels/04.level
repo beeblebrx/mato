@@ -1,5 +1,5 @@
 foodsToComplete: 9
-growthPerFood: 5
+growthPerFood: 7
 start: 13, 10
 startDirection: right
 ---

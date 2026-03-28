@@ -20,7 +20,7 @@ std::string render::GameText::statusText(const game::GameState &state)
 {
     std::string status = "Level " + std::to_string(state.currentLevelNumber()) + "  Score: " + std::to_string(state.score());
 
-    if (state.phase() == game::Phase::Running)
+    if (state.phase() == game::Phase::Running || state.phase() == game::Phase::Paused)
     {
         status += "\nFoods left:";
     }

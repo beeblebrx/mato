@@ -48,7 +48,23 @@ namespace game
 
     void GameState::setDirection(Direction direction)
     {
-        pendingDirection_ = direction;
+        // Controlling the worm is not allowed when paused.
+        if (phase_ != Phase::Paused)
+        {
+            pendingDirection_ = direction;
+        }
+    }
+
+    void GameState::togglePause()
+    {
+        if (phase_ == Phase::Running)
+        {
+            phase_ = Phase::Paused;
+        }
+        else if (phase_ == Phase::Paused)
+        {
+            phase_ = Phase::Running;
+        }
     }
 
     void GameState::triggerLevelAdvance()
@@ -61,7 +77,8 @@ namespace game
 
     void GameState::update()
     {
-        foodReward_.update();
+        if (phase_ != Phase::Paused)
+            foodReward_.update();
         doUpdate();
     }
 
@@ -74,7 +91,7 @@ namespace game
 
     void GameState::doUpdate()
     {
-        if (phase_ == Phase::GameOver || phase_ == Phase::Won)
+        if (phase_ == Phase::GameOver || phase_ == Phase::Won || phase_ == Phase::Paused)
         {
             return;
         }

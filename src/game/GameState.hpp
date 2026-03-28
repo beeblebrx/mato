@@ -16,6 +16,7 @@ namespace game
     enum class Phase
     {
         Running,
+        Paused,
         LevelPause,
         GameOver,
         Won
@@ -27,6 +28,7 @@ namespace game
         GameState(int width, int height);
 
         void setDirection(Direction direction);
+        void togglePause();
         void update();
         void restart();
         void triggerLevelAdvance();

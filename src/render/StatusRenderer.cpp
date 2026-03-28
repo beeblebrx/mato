@@ -23,7 +23,7 @@ namespace render
         text_.setString(GameText::statusText(state));
         window.draw(text_);
 
-        if (state.phase() == game::Phase::Running)
+        if (state.phase() == game::Phase::Running || state.phase() == game::Phase::Paused)
         {
             rewardText_.setString(GameText::rewardText(state));
             rewardText_.setFillColor(GameText::rewardColor(state));
